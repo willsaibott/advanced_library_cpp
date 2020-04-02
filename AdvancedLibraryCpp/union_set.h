@@ -10,6 +10,8 @@ namespace advanced {
 class union_set_t {
   std::vector<std::pair<size_t, size_t>> _items;
   std::vector<size_t>                    _ranks;
+  size_t                                 _disjoint{ 0 };
+  size_t                                 _acorn{ 0 };
   bool                                   _apply_compression{ true };
 
 public:
@@ -56,7 +58,9 @@ public:
     bool can_be_inserted { exists(elem) };
     if (can_be_inserted) {
       _ranks[elem] = 0;
-      _items[elem] ={ elem, elem };
+      _items[elem] = { elem, elem };
+      _disjoint++;
+      _acorn++;
     }
     return !can_be_inserted;
   }
@@ -104,6 +108,20 @@ public:
     return exists(first)  &&
            exists(second) &&
            _join(_find(first), _find(second));
+  }
+
+  /**
+   * @return the number of disjoint sets in the union set
+   */
+  size_t disjoint() const {
+    return _disjoint;
+  }
+
+  /**
+   * @return the number of sets that has no parent
+   */
+  size_t acorn() const {
+    return _acorn;
   }
 
 private:
@@ -159,17 +177,19 @@ private:
    * @return whether the sets could be joined
    */
   bool _join(const size_t& first, const size_t& second) {
-    auto& first_rank { _ranks[first]             };
-    auto& second_rank{ _ranks[second]            };
-    bool same        { !_same_set(first, second) };
+    auto first_rank  { _ranks[first]            };
+    auto second_rank { _ranks[second]           };
+    bool same        { _same_set(first, second) };
     if (!same) {
       // The chosen master will be the node which has the greater rank/height
-      if (first_rank < second_rank) {
+      if (first_rank <= second_rank) {
         _join_set(first, second);
       }
       else {
         _join_set(second, first);
       }
+      _disjoint--;
+      _acorn -= (size_t)(!first_rank) + (size_t)(!second_rank);
     }
     return !same;
   }

@@ -14,6 +14,8 @@ template <class T,
 class union_find_t {
   mutable std::vector<std::pair<T, size_t>> _items;
   mutable std::vector<size_t>               _ranks;
+  size_t                                    _disjoint{ 0 };
+  size_t                                    _acorn{ 0 };
   map_container                             _items_id;
 
 public:
@@ -54,6 +56,8 @@ public:
       _items_id[elem] = id;
       _ranks.push_back(0);
       _items.push_back({ elem, id });
+      _disjoint++;
+      _acorn++;
     }
     return !already_exists;
   }
@@ -72,6 +76,8 @@ public:
       _items_id[elem] = id;
       _items.emplace_back(std::make_pair<T, size_t>(std::move(elem), id));
       _ranks.push_back(0);
+      _disjoint++;
+      _acorn++;
     }
     return !already_exists;
   }
@@ -103,7 +109,7 @@ public:
   bool same_set(const T& first, const T& second) {
     return (exists(first) &&
             exists(second) &&
-            _same_set(_items_id[first], _items_id[second]));
+            _same_set(_items_id.at(first), _items_id.at(second)));
   }
 
   /**
@@ -131,7 +137,7 @@ public:
     if (!exists(elem)) {
       return not_found;
     }
-    return _find(_items_id[elem]);
+    return _find(_items_id.at(elem));
   }
 
   /**
@@ -168,6 +174,20 @@ public:
     return exists(first)  &&
            exists(second) &&
            _join(_find(_items_id[first]), _find(_items_id[second]));
+  }
+
+  /**
+   * @return the number of disjoint sets in the union set
+   */
+  size_t disjoint() const {
+    return _disjoint;
+  }
+
+  /**
+   * @return the number of sets that has no parent
+   */
+  size_t acorn() const {
+    return _acorn;
   }
 
 private:
@@ -225,15 +245,17 @@ private:
   bool _join(const size_t& first,const size_t& second) {
     auto& first_rank { _ranks[first]             };
     auto& second_rank{ _ranks[second]            };
-    bool same        { !_same_set(first, second) };
+    bool same        { _same_set(first, second)  };
     if (!same) {
       // The chosen master will be the node which has the greater rank/height
-      if (first_rank < second_rank) {
+      if (first_rank <= second_rank) {
         _join_set(first, second);
       }
       else {
         _join_set(second, first);
       }
+      _disjoint--;
+      _acorn -= (size_t)(!first_rank) + (size_t)(!second_rank);
     }
     return !same;
   }
@@ -250,7 +272,4 @@ private:
     master_rank += slave_rank + 1;
   }
 };
-
-
-
 }

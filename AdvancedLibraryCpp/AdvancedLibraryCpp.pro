@@ -24,6 +24,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES +=
 
 HEADERS += \
+        delimiters.h \
+        memory.h \
         union_find.h \
         union_set.h
 unix {

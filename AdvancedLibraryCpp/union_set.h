@@ -189,7 +189,8 @@ private:
         _join_set(second, first);
       }
       _disjoint--;
-      _acorn -= (size_t)(!first_rank) + (size_t)(!second_rank);
+      _acorn -= static_cast<size_t>(!first_rank) +
+                static_cast<size_t>(!second_rank);
     }
     return !same;
   }

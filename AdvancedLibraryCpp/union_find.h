@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <utility>
 
 namespace advanced {
@@ -8,15 +8,13 @@ namespace advanced {
 /**
  * Implementation of union find generic data structure
  */
-template <class T,
-          bool  apply_compression = true,
-          class map_container     = std::map<T, size_t>>
+template <class T, bool  apply_compression = true>
 class union_find_t {
   mutable std::vector<std::pair<T, size_t>> _items;
   mutable std::vector<size_t>               _ranks;
   size_t                                    _disjoint{ 0 };
   size_t                                    _acorn{ 0 };
-  map_container                             _items_id;
+  std::unordered_map<T, size_t>             _items_id;
 
 public:
 
@@ -40,6 +38,7 @@ public:
   void reserve(const size_t& capacity) {
     _items.reserve(capacity);
     _ranks.reserve(capacity);
+    _items_id.reserve(capacity);
   }
 
   /**
@@ -54,7 +53,7 @@ public:
     if (!already_exists) {
       size_t id       = _items.size();
       _items_id[elem] = id;
-      _ranks.push_back(0);
+      _ranks.push_back(1);
       _items.push_back({ elem, id });
       _disjoint++;
       _acorn++;
@@ -75,7 +74,7 @@ public:
       size_t id       = _items.size();
       _items_id[elem] = id;
       _items.emplace_back(std::make_pair<T, size_t>(std::move(elem), id));
-      _ranks.push_back(0);
+      _ranks.push_back(1);
       _disjoint++;
       _acorn++;
     }
@@ -190,6 +189,24 @@ public:
     return _acorn;
   }
 
+  /**
+   * @param set_id id of the set
+   * @return the number of sets that are joined in this set
+   */
+  size_t size_of(size_t set_id) {
+    auto root = find(set_id);
+    return root != not_found ? _ranks[root] : 0;
+  }
+
+  /**
+   * @param set_id id of the set
+   * @return the number of sets that are joined in this set
+   */
+  size_t size_of(const T& elem) {
+    auto root = find_by_elem(elem);
+    return root != not_found ? _ranks[root] : 0;
+  }
+
 private:
 
   /**
@@ -199,9 +216,10 @@ private:
    * It'll make all possible children nodes to be linked/joined to the root.
    */
   size_t _find(const size_t& elem) {
-    size_t& parent { _items[elem].second };
-    size_t& rank   { _ranks[elem]        };
-    size_t  root   { not_found           };
+    size_t& parent      { _items[elem].second };
+    size_t& rank        { _ranks[elem]        };
+    size_t& parent_rank { _ranks[parent]      };
+    size_t  root        { not_found           };
 
     if (elem == parent) {
       // End of recursion
@@ -212,10 +230,20 @@ private:
         // Propagate it
         root = _find(parent);
         if (root != parent) {
-          // I'm father of no one now, because I'm joining to the root
-          rank = 0;
+          // Applying compression...
+          if (parent_rank > 1) {
+            // parent isn't compressed yet, so remove my height from it
+            parent_rank -= rank;
+          }
+          else {
+            // parent is already compressed, so my height is already in the root
+            // then, zero it temporarily to not count it twice.
+            rank = 0;
+          }
           _join_set(elem, root);
         }
+        // I'm a slave of the root now, so I have myself, and only myself.
+        rank = 1;
       }
       else {
         // Propagate it
@@ -270,7 +298,7 @@ private:
     auto& master_rank{ _ranks[master] };
 
     _items[slave].second = master;
-    master_rank += slave_rank + 1;
+    master_rank += slave_rank;
   }
 };
 }

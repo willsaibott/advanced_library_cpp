@@ -57,7 +57,7 @@ public:
   bool insert(const size_t& elem) {
     bool can_be_inserted { exists(elem) };
     if (can_be_inserted) {
-      _ranks[elem] = 0;
+      _ranks[elem] = 1;
       _items[elem] = { elem, elem };
       _disjoint++;
       _acorn++;
@@ -124,6 +124,15 @@ public:
     return _acorn;
   }
 
+  /**
+   * @param set_id id of the set
+   * @return the number of sets that are joined in this set
+   */
+  size_t size_of(size_t set_id) {
+    auto root = find(set_id);
+    return root != not_found ? _ranks[root] : 0;
+  }
+
 private:
 
   /**
@@ -133,9 +142,10 @@ private:
    * It'll make all possible children nodes to be linked/joined to the root.
    */
   size_t _find(const size_t& elem) {
-    size_t& parent { _items[elem].second };
-    size_t& rank   { _ranks[elem]        };
-    size_t  root   { not_found           };
+    size_t& parent      { _items[elem].second };
+    size_t& rank        { _ranks[elem]        };
+    size_t& parent_rank { _ranks[parent]      };
+    size_t  root        { not_found           };
 
     if (elem == parent) {
       // End of recursion
@@ -146,10 +156,20 @@ private:
         // Propagate it
         root = _find(parent);
         if (root != parent) {
-          // I'm father of no one now, because I'm joining to the root
-          rank = 0;
+          // Applying compression...
+          if (parent_rank > 1) {
+            // parent isn't compressed yet, so remove my height from it
+            parent_rank -= rank;
+          }
+          else {
+            // parent is already compressed, so my height is already in the root
+            // then, zero it temporarily to not count it twice.
+            rank = 0;
+          }
           _join_set(elem, root);
         }
+        // I'm a slave of the root now
+        rank = 1;
       }
       else {
         // Propagate it
@@ -204,7 +224,7 @@ private:
     auto& master_rank{ _ranks[master] };
 
     _items[slave].second = master;
-    master_rank += slave_rank + 1;
+    master_rank += slave_rank;
   }
 };
 

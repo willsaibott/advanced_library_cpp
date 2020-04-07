@@ -90,6 +90,8 @@ namespace advanced {
 
   public:
 
+    using node_type = tree_node_t<T, max_node_size>;
+
     template <typename ...Args>
     tree_t(Args...args) :
       _root{ new tree_node_t<T, max_node_size>>(

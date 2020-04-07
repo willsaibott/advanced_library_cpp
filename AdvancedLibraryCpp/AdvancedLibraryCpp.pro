@@ -30,6 +30,7 @@ HEADERS += \
         math_operation.h \
         memory.h \
         segment_tree.h \
+        tree.h \
         union_find.h \
         union_set.h
 unix {

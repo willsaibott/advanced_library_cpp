@@ -25,7 +25,9 @@ SOURCES +=
 
 HEADERS += \
         delimiters.h \
+        heap.h \
         memory.h \
+        segment_tree.h \
         union_find.h \
         union_set.h
 unix {

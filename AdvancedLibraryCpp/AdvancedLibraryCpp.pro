@@ -25,7 +25,9 @@ SOURCES +=
 
 HEADERS += \
         delimiters.h \
+        fenwick_tree.h \
         heap.h \
+        math_operation.h \
         memory.h \
         segment_tree.h \
         union_find.h \

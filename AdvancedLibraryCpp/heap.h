@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <utility>
 #include <functional>
+#include <cmath>
 
 namespace advanced {
 
@@ -28,6 +29,10 @@ namespace advanced {
 
     size_t parent_of(size_t pos) {
       return pos ? (pos - 1) / 2 : pos;
+    }
+
+    size_t height_of(size_t pos) {
+      return std::log2(pos) + 1;
     }
 
     /**

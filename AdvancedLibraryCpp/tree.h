@@ -1,46 +1,40 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <algorithm>
 
 namespace advanced {
 
-  template <class T, size_t max_node_size>
+  template <class T, class node_type>
   class tree_t;
 
-  template <class T, size_t max_node_size = 2>
-  class tree_node_t {
-    friend class tree_t<T, max_node_size>;
-
+  template <class T, class node_type_t>
+  class base_node_t {
   public:
-    using node_type_t = tree_node_t<T, max_node_size>;
 
     void
-    add_child(std::unique_ptr<T>&& child) {
-      if (_children.size() < max_node_size) {
-          _children.emplace_back(
-            std::unique_ptr<node_type_t>(new node_type_t{ std::move(child), this })
-          );
-      }
+    set_node(const T& node) {
+      _node = node;
     }
 
     void
-    add_child(T* child) {
-      if (_children.size() < max_node_size) {
-          _children.emplace_back(
-            std::unique_ptr<node_type_t>(new node_type_t{ child, this })
-          );
-      }
+    set_node(T&& node) {
+      _node = std::move(node);
     }
 
-    void set_parent(node_type_t* parent) {
+    virtual void
+    set_parent(node_type_t* parent) {
       _parent = parent;
     }
 
-    void
-    delete_child(size_t child) {
-      if (child < _children.size()) {
-        _children.erase(_children.begin() + child);
-      }
+    virtual bool
+    delete_child(size_t child) = 0;
+
+    virtual void
+    swap(node_type_t& other) {
+      T tmp       = std::move(other._node);
+      other._node = std::move(_node);
+      _node       = std::move(tmp);
     }
 
     node_type_t&
@@ -53,91 +47,187 @@ namespace advanced {
       return _parent;
     }
 
-    const node_type_t&
-    child(size_t child) const {
-      return *(_children.at(child));
-    }
-
-    node_type_t&
-    child(size_t child) {
-      return *(_children.at(child));
-    }
-
     inline operator T() const {
-      return *_node;
+      return _node;
     }
 
     inline T&operator*() {
-      return *_node;
+      return _node;
     }
 
     inline const T&operator*() const {
-      return *_node;
+      return _node;
     }
 
     inline T&get() {
-      return *_node;
+      return _node;
     }
 
     inline const T&get() const {
-      return *_node;
+      return _node;
     }
 
-    tree_node_t() = default;
+    virtual inline size_t
+    children_count() const = 0;
 
-    tree_node_t(T* node, tree_node_t* parent = nullptr)
-        : _parent{ parent },
-          _node{ node }
+    template <typename = typename std::enable_if<
+                std::is_default_constructible<T>::value >
+              ::type >
+    base_node_t() { }
+
+    template <typename = typename std::enable_if<
+                std::is_copy_constructible<T>::value >
+              ::type >
+    base_node_t(const T& node, node_type_t* parent = nullptr)
+      : _parent{ parent }, _node{ node }
     { }
 
-    tree_node_t(tree_node_t&& other) :
+    template <typename = typename std::enable_if<
+                std::is_move_constructible<T>::value >
+              ::type >
+    base_node_t(T&& node, node_type_t* parent = nullptr)
+        : _parent{ parent }, _node{ node }
+    { }
+
+    template <typename = typename std::enable_if<
+                std::is_move_constructible<T>::value >
+              ::type >
+    base_node_t(base_node_t&& other) :
+      _parent{ other._parent }, _node{ std::move(other._node) }
+    {  }
+
+    template <typename = typename std::enable_if<
+                std::is_copy_constructible<T>::value >
+              ::type >
+    base_node_t(const base_node_t& other) :
       _parent{ other._parent },
-      _node{ std::move(other._node) },
+      _node{ other._node }
+    { }
+
+    base_node_t& operator=(const base_node_t& other) = default;
+    base_node_t& operator=(base_node_t&& other)      = default;
+
+    virtual
+    ~base_node_t() { }
+
+    protected:
+
+    node_type_t* _parent{ this };
+    T            _node;
+
+  };
+
+  template <class T, size_t max_node_size = 2>
+  class tree_node_t : public base_node_t<T, tree_node_t<T, max_node_size>> {
+    friend class tree_t<T, tree_node_t<T, max_node_size>>;
+
+  public:
+    using node_type_t = tree_node_t<T, max_node_size>;
+
+    virtual bool
+    add_child(const T& child) {
+      bool ok{ _children.size() < max_node_size };
+      if (ok) {
+          _children.emplace_back(new node_type_t{ child, this });
+      }
+      return ok;
+    }
+
+    virtual bool
+    delete_child(size_t child) override {
+      bool ok { child < _children.size() };
+      if (ok) {
+        _children.erase(_children.begin() + child);
+      }
+      return ok;
+    }
+
+    virtual inline size_t
+    children_count() const override {
+      return _children.size();
+    }
+
+    template <typename = typename std::enable_if<
+                std::is_default_constructible<T>::value >
+              ::type >
+    tree_node_t() { }
+
+    template <typename = typename std::enable_if<
+                std::is_copy_constructible<T>::value >
+              ::type >
+    tree_node_t(const T& node, tree_node_t* parent = nullptr)
+      : base_node_t<T, tree_node_t<T, max_node_size> > (node, parent)
+    { }
+
+    template <typename = typename std::enable_if<
+                std::is_move_constructible<T>::value >
+              ::type >
+    tree_node_t(T&& node, tree_node_t* parent = nullptr)
+        : base_node_t<T, tree_node_t<T, max_node_size> > (node, parent)
+    { }
+
+    template <typename = typename std::enable_if<
+                std::is_move_constructible<T>::value >
+              ::type >
+    tree_node_t(tree_node_t&& other) :
+      base_node_t<T, tree_node_t<T, max_node_size> > (other._node, other._parent),
       _children(std::move(other._children))
     {  }
 
-    tree_node_t(const tree_node_t& other) = delete;
+    template <typename = typename std::enable_if<
+                std::is_copy_constructible<T>::value >
+              ::type >
+    tree_node_t(const tree_node_t& other) :
+      base_node_t<T, tree_node_t<T, max_node_size> > (other._node, other._parent)
+    {
+      for (const auto& elem : other._children) {
+        add_child(elem);
+      }
+    }
 
-
-    tree_node_t& operator=(const tree_node_t& other) = delete;
+    tree_node_t& operator=(const tree_node_t& other) = default;
     tree_node_t& operator=(tree_node_t&& other)      = default;
 
-    private:
-
-    node_type_t*                              _parent{ this };
-    std::unique_ptr<T>                        _node{ nullptr };
-    std::vector<std::unique_ptr<node_type_t>> _children;
-
-
-    void
-    set_node(T* node) {
-      _node = std::unique_ptr<T>(node);
+    virtual
+    ~tree_node_t() {
+      for (const auto ptr : _children) {
+        if (ptr) { delete ptr; }
+      }
+      _children.clear();
     }
 
-    void
-    set_node(std::unique_ptr<T>&& node) {
-      _node = std::move(node);
-    }
+    protected:
+
+    std::vector<node_type_t*> _children;
   };
 
-
-  template <class T, size_t max_node_size = 2>
+  template <class T, class node_type>
   class tree_t {
-
   public:
 
-    using node_type = tree_node_t<T, max_node_size>;
+    virtual
+    ~tree_t() {
+      if (_root) {
+        delete _root;
+      }
+    }
 
     template <typename ...Args>
     tree_t(Args...args) :
       _root{ new node_type(new T(std::forward<Args>(args)...)) }
     { }
 
-    node_type& root() {
+    tree_t(T* root) : _root{ root}
+    { }
+
+    node_type&
+    root() {
       return *_root;
     }
 
-    private:
-    std::unique_ptr<node_type> _root{ nullptr };
+    protected:
+    tree_t() = default;
+
+    node_type* _root{ nullptr };
   };
 }

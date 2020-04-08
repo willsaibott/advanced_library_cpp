@@ -24,6 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES +=
 
 HEADERS += \
+        binary_tree.h \
         delimiters.h \
         fenwick_tree.h \
         heap.h \

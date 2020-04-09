@@ -30,11 +30,18 @@ namespace advanced {
     virtual bool
     delete_child(size_t child) = 0;
 
-    virtual void
-    swap(node_type_t& other) {
+    typename std::enable_if<std::is_move_constructible<T>::value, void>::type
+    swap_move(node_type_t& other) {
       T tmp       = std::move(other._node);
       other._node = std::move(_node);
       _node       = std::move(tmp);
+    }
+
+    typename std::enable_if<std::is_copy_constructible<T>::value, void>::type
+    swap(node_type_t& other) {
+      T tmp       = other._node;
+      other._node = _node;
+      _node       = tmp;
     }
 
     node_type_t&
@@ -217,7 +224,7 @@ namespace advanced {
       _root{ new node_type(new T(std::forward<Args>(args)...)) }
     { }
 
-    tree_t(T* root) : _root{ root}
+    tree_t(const T& root) : _root{ new node_type{ root } }
     { }
 
     node_type&

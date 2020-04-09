@@ -19,14 +19,14 @@ namespace advanced {
       right = 1
     };
 
-    T&
+    node_type_t&
     left() {
-      return *(*_left);
+      return *_left;
     }
 
-    T&
+    node_type_t&
     right() {
-      return *(*_right);
+      return *_right;
     }
 
     inline bool
@@ -61,7 +61,7 @@ namespace advanced {
     }
 
     virtual bool
-    add_left(const T& child) override {
+    add_left(const T& child) {
       bool ok{ !_left };
       if (ok) {
         _left = new binary_node_t{ child, this };
@@ -70,7 +70,7 @@ namespace advanced {
     }
 
     virtual bool
-    add_right(const T& child) override {
+    add_right(const T& child) {
       bool ok{ !_right };
       if (ok) {
         _right = new binary_node_t{ child, this };
@@ -79,7 +79,13 @@ namespace advanced {
     }
 
     virtual bool
-    delete_child(direction node) override {
+    delete_child(size_t index) override {
+      direction node{ static_cast<direction>(index) };
+      return delete_child(node);
+    }
+
+    virtual bool
+    delete_child(direction node) {
       bool ok{ false };
       if (node == direction::left && _left) {
         delete _left;
@@ -99,12 +105,12 @@ namespace advanced {
       switch (node) {
       case direction::left:
         if (has_left()) {
-          base_type_t::swap(left());
+          base_type_t::swap(*left());
         }
         break;
       case direction::right:
         if (has_right()) {
-          base_type_t::swap(right());
+          base_type_t::swap(*right());
         }
         break;
 
@@ -131,7 +137,7 @@ namespace advanced {
       :  tree_t<T, binary_node_t<T> > (std::forward<Args>(args)...)
     { }
 
-    binary_tree_t(T* root) : tree_t<T, binary_node_t<T> > (root)
+    binary_tree_t(const T& root) : tree_t<T, binary_node_t<T> > (root)
     { }
 
   protected:

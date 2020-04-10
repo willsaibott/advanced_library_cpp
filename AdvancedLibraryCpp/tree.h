@@ -144,7 +144,10 @@ namespace advanced {
     delete_child(size_t child) override {
       bool ok { child < _children.size() };
       if (ok) {
-        _children.erase(_children.begin() + child);
+        auto it = _children.erase(_children.begin() + child);
+        if (*it) {
+          delete *it;
+        }
       }
       return ok;
     }

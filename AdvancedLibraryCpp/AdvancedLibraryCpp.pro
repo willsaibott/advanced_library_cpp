@@ -26,6 +26,8 @@ SOURCES +=
 HEADERS += \
         binary_tree.h \
         delimiters.h \
+        divisors.h \
+        enum_factory.h \
         fenwick_tree.h \
         heap.h \
         math_operation.h \

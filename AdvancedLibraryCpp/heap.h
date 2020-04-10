@@ -19,19 +19,19 @@ namespace advanced {
 
     }
 
-    size_t left_child_of(size_t pos) {
+    size_t left_child_of(size_t pos) const {
       return (pos << 1) + 1;
     }
 
-    size_t right_child_of(size_t pos) {
+    size_t right_child_of(size_t pos) const {
       return (pos << 1) + 2;
     }
 
-    size_t parent_of(size_t pos) {
+    size_t parent_of(size_t pos) const {
       return pos ? (pos - 1) / 2 : pos;
     }
 
-    size_t height_of(size_t pos) {
+    size_t height_of(size_t pos) const {
       return std::log2(pos) + 1;
     }
 
@@ -66,37 +66,24 @@ namespace advanced {
     using std::vector<T>::reserve;
     using std::vector<T>::resize;
 
-    void set_left(size_t pos, const T& value) {
-      size_t left { left_child_of(pos) };
-      if (left < size()) {
-        resize(right_child_of(left));
-      }
-      this->at(left) = value;
-    }
-
     void set_left(size_t pos, T&& value) {
       size_t left { left_child_of(pos) };
-      if (left < size()) {
+      if (left > size()) {
         resize(right_child_of(left));
       }
-      this->at(left) = std::move(value);
-    }
-
-
-    void set_right(size_t pos, const T& value) {
-      size_t right { right_child_of(pos) };
-      if (right < size()) {
-        resize(right_child_of(right));
-      }
-      this->at(right) = value;
+      this->at(left) = std::forward<T>(value);
     }
 
     void set_right(size_t pos, T&& value) {
       size_t right { right_child_of(pos) };
-      if (right < size()) {
+      if (right > size()) {
         resize(right_child_of(right));
       }
-      this->at(right) = std::move(value);
+      this->at(right) = std::forward<T>(value);
+    }
+
+    void set_root(T&& value) {
+      this->at(0) = std::forward<T>(value);
     }
 
     /**

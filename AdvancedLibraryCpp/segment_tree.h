@@ -24,15 +24,32 @@ namespace advanced {
      * transform operator for non-leaf nodes
      */
     virtual range_value_t
-    operator()(const std::vector<T>& array,
-               const range_value_t&  left,
-               const range_value_t&  right) const = 0;
+    join(const std::vector<T>& array,
+         const range_value_t&  left,
+         const range_value_t&  right) const = 0;
+
+    /**
+     * criteria boolean flag for stopping in the range, and not split the
+     * interval query anymore
+     */
+    virtual bool
+    criteria(const range_value_t& range) const {
+      return true;
+    }
+
+    /**
+     * function to make any necessary updates on lazy resolution operations
+     */
+    virtual void
+    propagate(range_value_t& range, range_value_t& left, range_value_t& right) {
+
+    }
 
     /**
      * transform operator for leaf nodes
      */
     virtual range_value_t
-    operator()(const T& element, const size_t& position) const = 0;
+    build(const T& element, const size_t& position) const = 0;
   };
 
   template <class T, class compare_t = std::less<T>>
@@ -40,16 +57,16 @@ namespace advanced {
     static const size_t not_found { static_cast<size_t>(-1) };
 
     inline virtual size_t
-    operator ()(const std::vector<T>& array,
-                const size_t&         left,
-                const size_t&         right) const override
+    join(const std::vector<T>& array,
+         const size_t&         left,
+         const size_t&         right) const override
     {
       static const compare_t compare;
       return compare(array[left], array[right]) ? left : right;
     }
 
     inline virtual size_t
-    operator()(const T& element, const size_t& position) const override {
+    build(const T& element, const size_t& position) const override {
       return position;
     }
   };
@@ -58,16 +75,16 @@ namespace advanced {
   struct range_operation_t : segment_node_t<T, T> {
 
     inline virtual T
-    operator ()(const std::vector<T>& array,
-                const size_t&         left,
-                const size_t&         right) const override
+    join(const std::vector<T>& array,
+         const size_t&         left,
+         const size_t&         right) const override
     {
       static const operation_t operation;
-      return operation(array[left], array[right]);
+      return operation(left, right);
     }
 
     inline virtual T
-    operator()(const T& element, const size_t& position) const override {
+    build(const T& element, const size_t& position) const override {
       return element;
     }
   };
@@ -91,9 +108,9 @@ namespace advanced {
    * the compare structure that implements the call operator "()" for comparing
    * two nodes in the sequence
    */
-  template <class T,
-            class range_value_t   = size_t,
-            class transform_t     = index_compare_t<T>>
+  template <typename T,
+            typename range_value_t   = size_t,
+            class    transform_t     = index_compare_t<T>>
   class segment_tree_t {
   public:
 
@@ -102,7 +119,24 @@ namespace advanced {
     struct range_t {
       size_t start { not_found };
       size_t end   { not_found };
+      size_t index;
       range_value_t value;
+
+      range_t()                                     = default;
+      range_t(const range_t&)                       = default;
+      range_t(range_t&&) noexcept                   = default;
+      inline range_t& operator=(const range_t&)     = default;
+      inline range_t& operator=(range_t&&) noexcept = default;
+
+      range_t(size_t s, size_t e, size_t idx=0) : start{s}, end{e}, index{idx} {}
+
+      size_t center() const {
+        return (start + end) / 2;
+      }
+
+      size_t length() const {
+        return end - start;
+      }
     };
 
     /**
@@ -115,7 +149,7 @@ namespace advanced {
      * and build the entire heap
      */
     template<typename ...Args>
-    segment_tree_t(Args... args) : _array(std::forward<Args>(args)...) {
+    segment_tree_t(Args&&... args) : _array( std::forward<Args>(args)... ) {
       build();
     }
 
@@ -231,9 +265,9 @@ namespace advanced {
     range_value_t
     query(size_t start, size_t end) const {
       if (!is_built()) throw heap_not_built_exception_t{};
-      auto fixed_start{ std::min(std::min(start, end), size() - 1) };
-      auto fixed_end  { std::min(std::max(start, end), size() - 1)};
-      return _range_query(fixed_start, fixed_end, head());
+      size_t fixed_start{ std::min(std::min(start, end), size() - 1) };
+      size_t fixed_end  { std::min(std::max(start, end), size() - 1)};
+      return _range_query({ fixed_start, fixed_end } , head());
     }
 
     /**
@@ -259,7 +293,20 @@ namespace advanced {
      */
     const range_t&
     upper_bound(const range_t& node) const {
-      return _heap.right_child_of(node.index);
+      return _heap[_heap.right_child_of(node.index)];
+    }
+
+    /**
+     * @returns a range object containing:
+     *  {
+     *    index: right child of the current node
+     *    start: [(start+end)/2 + 1, end]
+     *    end:   end
+     *  }
+     */
+    range_t&
+    upper_bound(const range_t& node) {
+      return _heap[_heap.right_child_of(node.index)];
     }
 
     /**
@@ -272,7 +319,20 @@ namespace advanced {
      */
     const range_t&
     lower_bound(const range_t& node) const {
-      return _heap.left_child_of(node.index);
+      return _heap[_heap.left_child_of(node.index)];
+    }
+
+    /**
+     * @returns a range object containing:
+     *  {
+     *    index: right child of the current node
+     *    start: start
+     *    end:   [(start+end)/2]
+     *  }
+     */
+    range_t&
+    lower_bound(const range_t& node) {
+      return _heap[_heap.left_child_of(node.index)];
     }
 
     /**
@@ -287,6 +347,16 @@ namespace advanced {
 
   private:
 
+    range_t
+    right_interval(const range_t& interval, size_t center) const {
+      return { std::max(interval.start, center+1), interval.end };
+    }
+
+    range_t
+    left_interval(const range_t& interval, size_t center) const {
+      return { interval.start, std::min(interval.end, center) };
+    }
+
     /**
      * @returns a new range object containing:
      *  {
@@ -296,7 +366,7 @@ namespace advanced {
      */
     range_t
     new_upper_bound(const range_t& node) const {
-      return { (node.start+node.end) / 2 + 1, node.end };
+      return { (node.start+node.end) / 2 + 1, node.end, _heap.right_child_of(node.index) };
     }
 
     /**
@@ -308,7 +378,7 @@ namespace advanced {
      */
     range_t
     new_lower_bound(const range_t& node) const {
-      return { node.start, (node.start + node.end) / 2 };
+      return { node.start, (node.start + node.end) / 2, _heap.left_child_of(node.index) };
     }
 
     /**
@@ -320,16 +390,64 @@ namespace advanced {
       static const transform_t transform;
       range_value_t value;
 
-      if (interval.start >= node_range.start && interval.end <= node_range.end) {
+      if (node_range.start == interval.start && interval.end == node_range.end) {
         // completely inside range
-        value = node_range.value;
+        if (transform.criteria(node_range.value)) {
+          return value = node_range.value;
+        }
       }
-      else {
-        auto left  = _range_query(interval, lower_bound(node_range));
-        auto right = _range_query(interval, upper_bound(node_range));
-        value      = transform(_array, left, right);
+      if (node_range.length()) {
+        const auto& lbound{ lower_bound(node_range) };
+        const auto& rbound{ upper_bound(node_range) };
+        const auto center = node_range.center();
+        if (interval.start <= center && interval.end > center) {
+          auto left  = _range_query(left_interval(interval, center),  lbound);
+          auto right = _range_query(right_interval(interval, center), rbound);
+          value      = transform.join(_array, left, right);
+        }
+        else if (interval.start <= center) {
+          value      = _range_query(left_interval(interval, center), lbound);
+        }
+        else if (interval.end > center) {
+          value      = _range_query(right_interval(interval, center), rbound);
+        }
       }
       return value;
+    }
+
+    /**
+     * It performs a range query for the array recursively
+     * @return the index of the element which is the top of the range segment
+     */
+    range_value_t
+    _range_update(const range_t& interval, range_t& node_range) {
+      static const transform_t transform;
+
+      if (node_range.start == interval.start && interval.end == node_range.end) {
+        // completely inside range
+        if (transform.criteria(node_range)) {
+          return node_range.value = interval.value;
+        }
+      }
+      if (node_range.length()) {
+        const auto& lbound{ lower_bound(node_range) };
+        const auto& rbound{ upper_bound(node_range) };
+        const auto center = node_range.center();
+        transform.propagate(node_range, lbound, rbound);
+
+        if (interval.start <= center && interval.end > center) {
+          auto left        = _range_update(left_interval(interval, center),  lbound);
+          auto right       = _range_update(right_interval(interval, center), rbound);
+          node_range.value = transform.join(_array, left, right);
+        }
+        else if (interval.start <= center) {
+          node_range.value = _range_update(left_interval(interval, center), lbound);
+        }
+        else if (interval.end > center) {
+          node_range.value= _range_update(right_interval(interval, center), rbound);
+        }
+      }
+      return node_range.value;
     }
 
     /**
@@ -347,7 +465,7 @@ namespace advanced {
       else if (range.start <= position && range.end >= position){
         left        = update_heap(position, new_value, lower_bound(range));
         right       = update_heap(position, new_value, upper_bound(range));
-        range.value = tranform(_array, left, right);
+        range.value = tranform.join(_array, left, right);
       }
       return range.value;
     }
@@ -359,9 +477,9 @@ namespace advanced {
     void
     build() {
       if (size()) {
-        _heap.reserve(minimum_required_size_for_head(size()));
-
-        (void)build({ 0, size() - 1 });
+        _heap.resize(minimum_required_size_for_head(size()));
+        _heap.set_root({ 0, size() - 1, 0 });
+        (void)build(_heap.head());
         _built_heap = true;
       }
     }
@@ -372,22 +490,21 @@ namespace advanced {
      * @return the range segment
      */
     range_value_t
-    build(const range_t& range) {
+    build(range_t& range) {
       static const transform_t transform;
-      range_value_t value, right, left;
-      _heap.push_back({ range });
-
-      range_value_t& node{ _heap.tail() };
+      range_value_t right, left;
 
       if (range.end > range.start) {
-        left       = build(new_lower_bound(range));
-        right      = build(new_upper_bound(range));
-        node.value = transform(_array, left, right);
+        _heap.set_left(range.index,  new_lower_bound(range));
+        _heap.set_right(range.index, new_upper_bound(range));
+        left        = build(lower_bound(range));
+        right       = build(upper_bound(range));
+        range.value = transform.join(_array, left, right);
       }
       else {
-        node.value = transform(_array[range.start], range.start);
+        range.value = transform.build(_array[range.start], range.start);
       }
-      return node.value;
+      return range.value;
     }
 
     std::vector<T>          _array;

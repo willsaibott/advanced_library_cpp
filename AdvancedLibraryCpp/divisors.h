@@ -12,7 +12,7 @@ namespace advanced {
   std::vector<uint64_t>
   divisors_of(uint64_t n, bool sorting = false) {
     std::vector<uint64_t> divisors;
-    uint64_t square = std::sqrt(n);
+    uint64_t square = static_cast<uint64_t>(std::sqrt(n));
     for(uint64_t ii = 2; ii <= square; ii++) {
       if(n % ii == 0ull) {
         divisors.push_back(ii);

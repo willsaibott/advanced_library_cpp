@@ -4,11 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
-
-TARGET = AdvancedLibraryCpp
-TEMPLATE = lib
-CONFIG += staticlib
+QT -= gui
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -21,10 +17,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES +=
-
 HEADERS += \
         binary_tree.h \
+        concurrency/safe.h \
         delimiters.h \
         divisors.h \
         enum_factory.h \
@@ -36,7 +31,31 @@ HEADERS += \
         tree.h \
         union_find.h \
         union_set.h
+
+testmode {
+    # ONLY TESTING UNIT
+    QT       += testlib
+    TARGET    = tests
+    HEADERS  += test/testenum.h \
+                test/testlockable.h
+    SOURCES  += test/testlockable.cpp \
+                test/testenum.cpp \
+                test/tests.cpp
+    TEMPLATE  = app
+    CONFIG   += c++14 - Wall
+}
+
+libmode {
+    #ONLY LIB
+    TARGET    = AdvancedLibraryCpp
+    TEMPLATE  = lib
+    CONFIG   += staticlib
+    CONFIG   += c++11 - Wall
+}
+
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+

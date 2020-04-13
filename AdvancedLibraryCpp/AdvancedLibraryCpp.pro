@@ -37,9 +37,13 @@ testmode {
     QT       += testlib
     TARGET    = tests
     HEADERS  += test/testenum.h \
-                test/testlockable.h
+                test/testlockable.h \
+                test/test_stream_delimiters.h \
+                test/test_memory.h
     SOURCES  += test/testlockable.cpp \
                 test/testenum.cpp \
+                test/test_memory.cpp \
+                test/test_stream_delimiters.cpp \
                 test/tests.cpp
     TEMPLATE  = app
     CONFIG   += c++14 - Wall
@@ -57,5 +61,3 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
-
-

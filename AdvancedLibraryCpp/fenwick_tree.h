@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <stdexcept>
+#include <limits>
 #include "math_operation.h"
 
 namespace advanced {
@@ -14,7 +15,7 @@ namespace advanced {
       } { }
   };
 
-  template <class T>
+  template <class T, typename transform_t = sum_t<T>>
   class fenwick_tree_t {
   public:
 
@@ -27,18 +28,19 @@ namespace advanced {
      * It'll forward to std::vector<T> constructor any given argument
      * and build the entire heap
      */
-    template<typename ...Args>
-    fenwick_tree_t(Args... args) : _array(std::forward<Args>(args)...) {
-      _build();
+    fenwick_tree_t(const std::vector<T>& input,
+                   size_t number_of_elements = std::numeric_limits<size_t>::max() )
+    {
+      _build(input, number_of_elements);
     }
 
     /**
      * It'll rebuild the internal heap, really costful operation
      */
     void
-    rebuild(const std::vector<T>& input) {
-      _array = input;
-      _build();
+    rebuild(const std::vector<T>& input,
+            size_t number_of_elements = std::numeric_limits<size_t>::max() ) {
+      _build(input, number_of_elements);
     }
 
     /**
@@ -49,14 +51,13 @@ namespace advanced {
      */
     bool
     update(size_t position, const T&value) {
-      bool ok { position < _array.size() };
+      bool ok { position < size() };
       if (ok) {
-        if (is_built()){
-          _update(position, _array[position] - value);
+        if (is_built() && value){
+          _update(position, value);
         }
         else {
-          _array[position] = value;
-          _build();
+          throw fenwick_not_built_exception_t{};
         }
       }
       return ok;
@@ -67,7 +68,7 @@ namespace advanced {
      */
     const T&
     operator[](size_t position) const {
-      return _array[position];
+      return _processed[position];
     }
 
     /**
@@ -77,7 +78,7 @@ namespace advanced {
      */
     const T&
     at(size_t position) const {
-      return _array.at(position);
+      return _processed.at(position);
     }
 
     /**
@@ -85,7 +86,7 @@ namespace advanced {
      */
     size_t
     size() const {
-      return _array.size();
+      return _processed.size();
     }
 
     /**
@@ -94,8 +95,8 @@ namespace advanced {
      */
     void
     resize(size_t size) {
-      if (size > _array.size()) {
-        _array.resize(size);
+      if (size > _processed.size()) {
+        _processed.resize(size);
       }
     }
 
@@ -104,13 +105,14 @@ namespace advanced {
      */
     void
     reserve(size_t size) {
-      _array.reserve(size);
+      _processed.reserve(size);
     }
 
     /**
      * @return whether the heap is built or not
      */
-    bool is_built() const {
+    bool
+    is_built() const {
       return _built_heap;
     }
 
@@ -126,6 +128,19 @@ namespace advanced {
       auto fixed_start{ std::min(std::min(start, end), size() - 1) };
       auto fixed_end  { std::min(std::max(start, end), size() - 1)};
       return _range_query(fixed_start, fixed_end);
+    }
+
+    bool
+    set_value(size_t position, const T& value) {
+      static const typename transform_t::reverse_t transform;
+      bool ok { position < _processed.size() };
+      if (ok) {
+        auto diff = transform(value, _processed[position]);
+        if (diff) {
+          _update(position, diff);
+        }
+      }
+      return ok;
     }
 
   private:
@@ -145,36 +160,51 @@ namespace advanced {
       return index + lsb(index);
     }
 
-    void _build() {
-      _processed.resize(_array.size(), static_cast<T>(0));
+    void
+    _build(const std::vector<T>& input, size_t number_of_elements) {
+      size_t size = number_of_elements < input.size() ?
+                    number_of_elements + 1:
+                    input.size() + 1;
 
-      for (size_t ii = 0; ii < _array.size(); ++ii) {
-        _update(ii, _array[ii]);
+      if (size > _processed.size()) {
+        _processed.assign(size, static_cast<T>(0));
+      }
+      else if (is_built()){
+        std::fill_n(_processed.begin(), size, static_cast<T>(0));
+      }
+
+      for (size_t ii = 1; ii < size; ++ii) {
+        _update(ii, input[ii-1]);
       }
 
       _built_heap = true;
     }
 
-    void _update(const size_t& position, const T& value) {
-      if (position < size()) {
-        _processed[position] += value;
+    void
+    _update(const size_t& position, const T& value) {
+      static const transform_t transform;
+      if (position && position < size()) {
+        _processed[position] = transform(_processed[position], value);
         _update(next_update(position), value);
       }
     }
 
-    T _range_query (const size_t& start, const size_t& end) {
-      if (!start) {
-        size_t index = end;
-        T value = _processed[index];
-        while((index = next_query(index))) {
-          value += _processed[index];
-        }
-        return value;
+    T
+    _range_query (const size_t& position) const {
+      static const transform_t transform;
+      size_t index = position;
+      T value = _processed[index];
+      while((index = next_query(index))) {
+        value = transform(_processed[index], value);
       }
-      return _range_query(0, end) - _range_query(0, start - 1);
+      return value;
     }
 
-    std::vector<T>   _array;
+    T
+    _range_query (const size_t& start, const size_t& end) const {
+      return _range_query(end) - (start <= 1 ? 0 : _range_query(start - 1));
+    }
+
     std::vector<T>   _processed;
     bool             _built_heap{ false };
   };

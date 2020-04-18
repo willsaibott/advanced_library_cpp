@@ -135,7 +135,7 @@ namespace advanced {
     add_child(const T& child) {
       bool ok{ _children.size() < max_node_size };
       if (ok) {
-          _children.emplace_back(new node_type_t{ child, this });
+          _children.push_back(new node_type_t{ child, this });
       }
       return ok;
     }
@@ -150,6 +150,11 @@ namespace advanced {
         }
       }
       return ok;
+    }
+
+    node_type_t&
+    child(size_t pos) {
+      return *_children.at(pos);
     }
 
     virtual inline size_t
@@ -222,12 +227,12 @@ namespace advanced {
       }
     }
 
-    template <typename ...Args>
-    tree_t(Args...args) :
-      _root{ new node_type(new T(std::forward<Args>(args)...)) }
+    tree_t(const T& root) : _root{ new node_type{ root } }
     { }
 
-    tree_t(const T& root) : _root{ new node_type{ root } }
+    template <typename ...Args>
+    tree_t(Args&&...args) :
+      _root{ new node_type(std::forward<Args>(args)...) }
     { }
 
     node_type&
@@ -235,8 +240,9 @@ namespace advanced {
       return *_root;
     }
 
-    protected:
     tree_t() = default;
+
+    protected:
 
     node_type* _root{ nullptr };
   };

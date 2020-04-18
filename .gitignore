@@ -3,3 +3,6 @@ AdvancedLibraryCpp/.qmake.stash
 AdvancedLibraryCpp/libAdvancedLibraryCpp.a
 AdvancedLibraryCpp/Makefile
 AdvancedLibraryCpp/build*
+AdvancedLibraryCpp/*.o
+AdvancedLibraryCpp/moc*
+

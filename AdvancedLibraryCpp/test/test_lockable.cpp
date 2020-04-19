@@ -5,7 +5,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QReadWriteLock>
-#include "testlockable.h"
+#include "test_lockable.h"
 #include "../concurrency/safe.h"
 
 TestLockable::

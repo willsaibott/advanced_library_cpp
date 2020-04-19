@@ -2,7 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
-#include "../delimiters.h"
+#include "../tools/delimiters.h"
 
 TestStreamDelimiters::
 TestStreamDelimiters(QObject *parent) : QObject(parent) {

@@ -1,5 +1,5 @@
-#include "testenum.h"
-#include "../enum_factory.h"
+#include "test_enum.h"
+#include "../tools/enum_factory.h"
 
 TestEnum::
 TestEnum(QObject *parent) : QObject(parent) {

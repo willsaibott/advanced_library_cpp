@@ -27,8 +27,24 @@ HEADERS += \
         heap.h \
         math_operation.h \
         memory.h \
+        random.h \
         segment_tree.h \
+        structures/binary_tree.h \
+        structures/fenwick_tree.h \
+        structures/heap.h \
+        structures/segment_tree.h \
+        structures/tree.h \
+        structures/union_find.h \
+        structures/union_set.h \
+        tools/delimiters.h \
+        tools/divisors.h \
+        tools/enum_factory.h \
+        tools/math_operation.h \
+        tools/memory.h \
+        tools/random.h \
+        tools/types.h \
         tree.h \
+        types.h \
         union_find.h \
         union_set.h
 
@@ -36,15 +52,17 @@ testmode {
     # ONLY TESTING UNIT
     QT       += testlib
     TARGET    = tests
-    HEADERS  += test/testenum.h \
-                test/testlockable.h \
+    HEADERS  += \
                 test/test_stream_delimiters.h \
-                test/test_memory.h
-    SOURCES  += test/testlockable.cpp \
-                test/testenum.cpp \
+                test/test_memory.h \
+                test/test_enum.h \
+                test/test_lockable.h
+    SOURCES  += \
                 test/test_memory.cpp \
                 test/test_stream_delimiters.cpp \
-                test/tests.cpp
+                test/tests.cpp \
+                test/test_enum.cpp \
+                test/test_lockable.cpp
     TEMPLATE  = app
     CONFIG   += c++14 - Wall
 }

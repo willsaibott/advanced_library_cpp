@@ -1,7 +1,7 @@
 #include <QVector>
 #include <iostream>
-#include "testlockable.h"
-#include "testenum.h"
+#include "test_lockable.h"
+#include "test_enum.h"
 #include "test_memory.h"
 #include "test_stream_delimiters.h"
 

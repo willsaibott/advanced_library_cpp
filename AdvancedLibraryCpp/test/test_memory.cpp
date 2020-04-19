@@ -1,5 +1,5 @@
 #include "test_memory.h"
-#include "../memory.h"
+#include "../tools/memory.h"
 
 TestMemory::
 TestMemory(QObject *parent) : QObject(parent) {

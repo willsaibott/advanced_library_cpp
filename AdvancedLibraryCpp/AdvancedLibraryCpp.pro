@@ -56,12 +56,14 @@ testmode {
                 test/test_stream_delimiters.h \
                 test/test_memory.h \
                 test/test_enum.h \
+                test/test_random.h \
                 test/test_lockable.h
     SOURCES  += \
                 test/test_memory.cpp \
                 test/test_stream_delimiters.cpp \
                 test/tests.cpp \
                 test/test_enum.cpp \
+                test/test_random.cpp \
                 test/test_lockable.cpp
     TEMPLATE  = app
     CONFIG   += c++14 - Wall

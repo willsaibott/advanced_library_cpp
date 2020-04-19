@@ -8,14 +8,15 @@
 #include "types.h"
 namespace advanced {
 
-  inline ul
+  template <typename int_type = ul>
+  inline int_type
   next_random(ul start, ul end) {
     static std::random_device dev;
     static std::mt19937       rng(dev());
     using distribution = std::uniform_int_distribution<std::mt19937::result_type>;
 
     distribution dist(start, end);
-    return dist(rng);
+    return static_cast<int_type>(dist(rng));
   }
 
   inline double
@@ -33,11 +34,16 @@ namespace advanced {
     static std::random_device dev;
     static std::mt19937       rng(dev());
     using distribution = std::uniform_int_distribution<std::mt19937::result_type>;
-    std::string output(count, ' ');
-    distribution dist(0, character_set.size()-1);
 
-    for (size_t ii = 0; ii < count; ii++) {
-      output[ii] = character_set[dist(rng)];
+    if (character_set.empty()) { return ""; }
+
+    std::string output(count, ' ');
+    if (!character_set.empty()) {
+      distribution dist(0, character_set.size()-1);
+
+      for (size_t ii = 0; ii < count; ii++) {
+        output[ii] = character_set[dist(rng)];
+      }
     }
 
     return output;
@@ -48,6 +54,8 @@ namespace advanced {
     static std::random_device dev;
     static std::mt19937       rng(dev());
     using distribution = std::uniform_int_distribution<std::mt19937::result_type>;
+
+    if (character_set.empty()) { return '\0'; }
     distribution dist(0, character_set.size()-1);
     return character_set[dist(rng)];
   }

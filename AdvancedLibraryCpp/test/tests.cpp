@@ -4,6 +4,7 @@
 #include "test_enum.h"
 #include "test_memory.h"
 #include "test_stream_delimiters.h"
+#include "test_random.h"
 
 int
 main(int argc, char** argv) {
@@ -12,7 +13,8 @@ main(int argc, char** argv) {
     new TestLockable(),
     new TestEnum(),
     new TestMemory(),
-    new TestStreamDelimiters()
+    new TestStreamDelimiters(),
+    new TestRandom()
   };
 
   for (auto& test : test_suits) {

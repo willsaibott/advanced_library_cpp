@@ -6,6 +6,8 @@
 #include "test_stream_delimiters.h"
 #include "test_random.h"
 #include "test_missing_elements.h"
+#include "test_subset.h"
+#include "test_subarray.h"
 
 int
 main(int argc, char** argv) {
@@ -16,7 +18,9 @@ main(int argc, char** argv) {
     new TestMemory(),
     new TestStreamDelimiters(),
     new TestRandom(),
-    new TestMissingElements()
+    new TestMissingElements(),
+    new TestSubset(),
+    new TestSubArray()
   };
 
   for (auto& test : test_suits) {

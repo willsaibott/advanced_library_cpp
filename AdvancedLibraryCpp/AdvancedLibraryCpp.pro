@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
         binary_tree.h \
+        classic/sequences/missing_element.h \
         concurrency/safe.h \
         delimiters.h \
         divisors.h \
@@ -57,6 +58,7 @@ testmode {
                 test/test_memory.h \
                 test/test_enum.h \
                 test/test_random.h \
+                test/test_missing_elements.h \
                 test/test_lockable.h
     SOURCES  += \
                 test/test_memory.cpp \
@@ -64,7 +66,8 @@ testmode {
                 test/tests.cpp \
                 test/test_enum.cpp \
                 test/test_random.cpp \
-                test/test_lockable.cpp
+                test/test_lockable.cpp \
+                test/test_missing_elements.cpp
     TEMPLATE  = app
     CONFIG   += c++14 - Wall
 }
@@ -81,3 +84,5 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+SOURCES +=

@@ -5,6 +5,7 @@
 #include "test_memory.h"
 #include "test_stream_delimiters.h"
 #include "test_random.h"
+#include "test_missing_elements.h"
 
 int
 main(int argc, char** argv) {
@@ -14,7 +15,8 @@ main(int argc, char** argv) {
     new TestEnum(),
     new TestMemory(),
     new TestStreamDelimiters(),
-    new TestRandom()
+    new TestRandom(),
+    new TestMissingElements()
   };
 
   for (auto& test : test_suits) {

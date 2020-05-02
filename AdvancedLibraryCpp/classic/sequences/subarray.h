@@ -6,7 +6,7 @@
 #include "../../tools/types.h"
 
 namespace advanced {
-namespace manipulators {
+namespace sequences {
 
   template <typename number_t = int>
   class subarray_t {

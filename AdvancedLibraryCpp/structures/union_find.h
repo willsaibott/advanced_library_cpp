@@ -4,6 +4,7 @@
 #include <utility>
 
 namespace advanced {
+namespace structures {
 
 /**
  * Implementation of union find generic data structure
@@ -301,4 +302,5 @@ private:
     master_rank += slave_rank;
   }
 };
+}
 }

@@ -4,6 +4,8 @@
 #include <cmath>
 
 namespace advanced {
+namespace tools {
+
   /**
    * @param[in] n                  number
    * @param[in] sorting (optional) whether the vector should be sorted
@@ -35,4 +37,5 @@ namespace advanced {
   uint64_t gcd(uint64_t a, uint64_t b) {
     return b == 0ull ? a : gcd(b, (a % b));
   }
+}
 }

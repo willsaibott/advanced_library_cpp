@@ -3,6 +3,7 @@
 #include <utility>
 
 namespace advanced {
+namespace structures {
 
 /**
  * Implementation of union find generic data structure
@@ -228,4 +229,5 @@ private:
   }
 };
 
+}
 }

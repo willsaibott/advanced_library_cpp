@@ -6,6 +6,7 @@
 #include <cmath>
 
 namespace advanced {
+namespace structures {
 
   template <class T = long long>
   class heap_t : protected std::vector<T> {
@@ -139,4 +140,5 @@ namespace advanced {
       return std::vector<T>::back();
     }
   };
+}
 }

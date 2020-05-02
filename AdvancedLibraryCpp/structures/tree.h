@@ -4,6 +4,7 @@
 #include <algorithm>
 
 namespace advanced {
+namespace structures {
 
   template <class T, class node_type>
   class tree_t;
@@ -246,4 +247,5 @@ namespace advanced {
 
     node_type* _root{ nullptr };
   };
+}
 }

@@ -7,6 +7,7 @@
 
 #include "types.h"
 namespace advanced {
+namespace tools {
 
   template <typename int_type = ul>
   inline int_type
@@ -60,4 +61,4 @@ namespace advanced {
     return character_set[dist(rng)];
   }
 }
-
+}

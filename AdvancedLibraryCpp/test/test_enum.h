@@ -5,7 +5,6 @@
 #include <string>
 
 
-
 class TestEnum : public QObject
 {
 

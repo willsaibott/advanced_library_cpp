@@ -3,11 +3,11 @@
 #include "test_subarray.h"
 #include "../../classic/sequences/subarray.h"
 
-using namespace advanced::manipulators;
+using namespace advanced::sequences;
 
 TestSubArray::
 TestSubArray(QObject *parent) : QObject(parent) {
-
+  QObject::setObjectName("TestSubArray");
 }
 
 void TestSubArray::

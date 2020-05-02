@@ -1,6 +1,7 @@
 #include <string>
 
 namespace advanced {
+namespace tools {
 
   /**
    * Usage:
@@ -56,4 +57,5 @@ namespace advanced {
     return result;
   }
 
+}
 }

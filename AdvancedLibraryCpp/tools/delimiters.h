@@ -3,6 +3,7 @@
 #include <locale>
 
 namespace advanced {
+namespace tools {
 
   struct alpha_filter_t {
     inline bool operator()(char c) const {
@@ -50,4 +51,5 @@ namespace advanced {
       return &rc[0];
     }
   };
+}
 }

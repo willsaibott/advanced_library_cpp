@@ -4,9 +4,12 @@
 #include <array>
 
 using namespace advanced;
+using namespace advanced::sequences;
 
 TestMissingElements::
-TestMissingElements(QObject *parent) : QObject(parent) { }
+TestMissingElements(QObject *parent) : QObject(parent) {
+  QObject::setObjectName("TestMissingElements");
+}
 
 void TestMissingElements::
 test_find_missing_element_of_sequence_1_N() {

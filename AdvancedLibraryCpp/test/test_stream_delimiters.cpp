@@ -4,9 +4,12 @@
 #include <algorithm>
 #include "../tools/delimiters.h"
 
+using namespace advanced;
+using namespace advanced::tools;
+
 TestStreamDelimiters::
 TestStreamDelimiters(QObject *parent) : QObject(parent) {
-
+  QObject::setObjectName("TestStreamDelimiters");
 }
 
 void TestStreamDelimiters::
@@ -29,9 +32,7 @@ test_string_stream_words_splitter() {
   std::vector<std::string> values;
   std::string word;
 
-  ss.imbue(std::locale{
-             ss.getloc(),
-             new advanced::custom_delimiter_t<advanced::alpha_filter_t>{} });
+  ss.imbue(std::locale{ ss.getloc(), new custom_delimiter_t<alpha_filter_t>{} });
 
   while (ss >> word) {
     values.push_back(word);
@@ -59,9 +60,7 @@ test_string_stream_lowercase_only() {
   std::vector<std::string> values;
   std::string word;
 
-  ss.imbue(std::locale{
-             ss.getloc(),
-             new advanced::custom_delimiter_t<advanced::lower_filter_t>{} } );
+  ss.imbue(std::locale{ ss.getloc(), new custom_delimiter_t<lower_filter_t>{} } );
 
   while (ss >> word) {
     values.push_back(word);
@@ -83,9 +82,7 @@ test_string_stream_uppercase_only() {
   std::vector<std::string> values;
   std::string word;
 
-  ss.imbue(std::locale{
-             ss.getloc(),
-             new advanced::custom_delimiter_t<advanced::upper_filter_t>{} } );
+  ss.imbue(std::locale{ ss.getloc(), new custom_delimiter_t<upper_filter_t>{} } );
 
   while (ss >> word) {
     values.push_back(word);
@@ -108,9 +105,7 @@ test_string_stream_digit_only_only() {
   std::vector<std::string> values;
   std::string word;
 
-  ss.imbue(std::locale{
-             ss.getloc(),
-             new advanced::custom_delimiter_t<advanced::digit_filter_t>{} } );
+  ss.imbue(std::locale{ ss.getloc(), new custom_delimiter_t<digit_filter_t>{} } );
 
   while (ss >> word) {
     values.push_back(word);

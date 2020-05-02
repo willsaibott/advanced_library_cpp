@@ -4,11 +4,12 @@
 #include "test_subset.h"
 
 
-using namespace advanced::manipulators;
+using namespace advanced::sequences;
 
 TestSubset::
-TestSubset(QObject *parent) : QObject(parent) { }
-
+TestSubset(QObject *parent) : QObject(parent) {
+  QObject::setObjectName("TestSubset");
+}
 
 void TestSubset::
 test_subset_of_vector_with_sum_zero() {

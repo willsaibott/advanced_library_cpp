@@ -5,6 +5,7 @@
 #include "math_operation.h"
 
 namespace advanced {
+namespace structures {
 
   class fenwick_not_built_exception_t : public std::runtime_error {
   public:
@@ -208,4 +209,5 @@ namespace advanced {
     std::vector<T>   _processed;
     bool             _built_heap{ false };
   };
+}
 }

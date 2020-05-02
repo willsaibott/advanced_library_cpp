@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 namespace advanced {
+namespace sequences {
 
   class invalid_sequence_t : public std::runtime_error {
   public:
@@ -293,4 +294,5 @@ namespace advanced {
     }
     return elem;
   }
+}
 }

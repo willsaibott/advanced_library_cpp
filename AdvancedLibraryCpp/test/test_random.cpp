@@ -3,9 +3,12 @@
 #include "../tools/random.h"
 
 using namespace advanced;
+using namespace advanced::tools;
 
 TestRandom::
-TestRandom(QObject *parent) : QObject(parent) { }
+TestRandom(QObject *parent) : QObject(parent) {
+  QObject::setObjectName("TestRandom");
+}
 
 void TestRandom::
 test_int8_random() {

@@ -22,34 +22,29 @@ HEADERS += \
         classic/sequences/missing_element.h \
         classic/sequences/subarray.h \
         classic/sequences/subset.h \
+        concurrency/message_queue.h \
         concurrency/safe.h \
-        delimiters.h \
-        divisors.h \
-        enum_factory.h \
-        fenwick_tree.h \
-        heap.h \
-        math_operation.h \
-        memory.h \
-        random.h \
-        segment_tree.h \
+        concurrency/thread.h \
         structures/binary_tree.h \
+        structures/cache.h \
+        structures/command.h \
         structures/fenwick_tree.h \
         structures/heap.h \
         structures/segment_tree.h \
         structures/tree.h \
         structures/union_find.h \
         structures/union_set.h \
+        test/simple_protocol_moc.h \
+        test/simple_worker_moc.h \
+        test/test_message_queue.h \
+        test/test_wrapper_thread.h \
         tools/delimiters.h \
         tools/divisors.h \
         tools/enum_factory.h \
         tools/math_operation.h \
         tools/memory.h \
         tools/random.h \
-        tools/types.h \
-        tree.h \
-        types.h \
-        union_find.h \
-        union_set.h
+        tools/types.h
 
 testmode {
     # ONLY TESTING UNIT
@@ -75,7 +70,8 @@ testmode {
                 test/test_subarray.cpp \
                 test/test_subset.cpp
     TEMPLATE  = app
-    CONFIG   += c++14 - Wall
+    CONFIG   += c++17 - Wall
+    LIBS     += -lstdc++fs
 }
 
 libmode {
@@ -90,3 +86,7 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+SOURCES += \
+  test/test_message_queue.cpp \
+  test/test_wrapper_thread.cpp

@@ -8,9 +8,12 @@
 #include "test_lockable.h"
 #include "../concurrency/safe.h"
 
+using namespace advanced;
+using namespace advanced::concurrency;
+
 TestLockable::
 TestLockable(QObject *parent) : QObject(parent) {
-
+  QObject::setObjectName("TestLockable");
 }
 
 void TestLockable::
@@ -22,7 +25,7 @@ test_copy_constructible() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>> strings{ expected_values };
+  lockable_t<std::vector<std::string>> strings{ expected_values };
   for (size_t ii = 0; ii < expected_values.size(); ii++) {
     QCOMPARE(strings[ii], expected_values[ii]);
   }
@@ -37,8 +40,8 @@ test_move_constructible() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>> strings_old{ expected_values };
-  advanced::lockable_t<std::vector<std::string>> strings{ std::move(strings_old) };
+  lockable_t<std::vector<std::string>> strings_old{ expected_values };
+  lockable_t<std::vector<std::string>> strings{ std::move(strings_old) };
   for (size_t ii = 0; ii < expected_values.size(); ii++) {
     QCOMPARE(strings[ii], expected_values[ii]);
   }
@@ -54,7 +57,7 @@ test_copy() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>> strings;
+  lockable_t<std::vector<std::string>> strings;
   strings = expected_values;
   for (size_t ii = 0; ii < expected_values.size(); ii++) {
     QCOMPARE(strings[ii], expected_values[ii]);
@@ -70,8 +73,8 @@ test_move() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>> strings_old{ expected_values };
-  advanced::lockable_t<std::vector<std::string>> strings = std::move(strings_old);
+  lockable_t<std::vector<std::string>> strings_old{ expected_values };
+  lockable_t<std::vector<std::string>> strings = std::move(strings_old);
   for (size_t ii = 0; ii < expected_values.size(); ii++) {
     QCOMPARE(strings[ii], expected_values[ii]);
   }
@@ -87,7 +90,7 @@ concurrency_using_std_locks() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>> strings{ expected_values };
+  lockable_t<std::vector<std::string>> strings{ expected_values };
 
   auto pred = [&strings]() {
     for (auto& str : strings) {
@@ -133,7 +136,7 @@ concurrency_using_std_shared_locks() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>, std::shared_timed_mutex>
+  lockable_t<std::vector<std::string>, std::shared_timed_mutex>
       strings{ expected_values };
 
   auto pred = [&strings, &expected_values]() {
@@ -176,9 +179,9 @@ concurrency_using_std_scoped_locks() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>>
+  lockable_t<std::vector<std::string>>
       strings(expected_values.begin(), expected_values.begin() + 4);
-  advanced::lockable_t<std::vector<std::string>>
+  lockable_t<std::vector<std::string>>
       strings2(expected_values.begin() + 4, expected_values.end());
 
   std::vector<std::thread> threads(std::thread::hardware_concurrency());
@@ -224,7 +227,7 @@ concurrency_using_qt_locks() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>, QMutex>
+  lockable_t<std::vector<std::string>, QMutex>
       strings{ expected_values };
 
   auto pred = [&strings]() {
@@ -271,7 +274,7 @@ concurrency_using_qt_shared_locks() {
     ".rwevrvbeowibvoi3wbhoi4bhgiou34hofi43hifgho3l4hiogho34"
   };
 
-  advanced::lockable_t<std::vector<std::string>, QReadWriteLock>
+  lockable_t<std::vector<std::string>, QReadWriteLock>
       strings{ expected_values };
 
   auto pred = [&strings, &expected_values]() {

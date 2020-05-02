@@ -6,9 +6,10 @@
 #include <exception>
 #include <type_traits>
 #include "heap.h"
-#include "math_operation.h"
+#include "../tools/math_operation.h"
 
 namespace advanced {
+namespace structures {
 
   class heap_not_built_exception_t : public std::runtime_error {
   public:
@@ -33,6 +34,8 @@ namespace advanced {
     empty_update_t(empty_update_t&& other) noexcept           = default;
     empty_update_t&operator=(const empty_update_t& other)     = default;
     empty_update_t&operator=(empty_update_t&& other) noexcept = default;
+
+    virtual ~empty_update_t() {}
 
     virtual inline operator
     bool() const { return false; }
@@ -574,4 +577,5 @@ namespace advanced {
 
   template<class T, typename update_t = empty_update_t>
   using range_max_t = range_operation_t<T, maximum_t<T>, update_t>;
+}
 }

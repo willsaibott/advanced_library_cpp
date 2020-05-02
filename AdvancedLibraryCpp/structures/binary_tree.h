@@ -2,6 +2,7 @@
 #include "tree.h"
 
 namespace advanced {
+namespace structures {
 
   template <class T>
   class binary_tree_t;
@@ -333,4 +334,5 @@ namespace advanced {
     }
   };
 
+}
 }

@@ -2,6 +2,8 @@
 #include <algorithm>
 
 namespace advanced {
+namespace tools {
+
   template<class T> struct multiplication_t;
   template<class T> struct sum_t;
   template<class T> struct subtraction_t;
@@ -57,5 +59,5 @@ namespace advanced {
     }
   };
 
-
+}
 }

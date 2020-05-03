@@ -24,7 +24,9 @@ HEADERS += \
         classic/sequences/subset.h \
         concurrency/message_queue.h \
         concurrency/safe.h \
+        concurrency/semaphore.h \
         concurrency/thread.h \
+        concurrency/timer.h \
         structures/binary_tree.h \
         structures/cache.h \
         structures/command.h \
@@ -36,7 +38,18 @@ HEADERS += \
         structures/union_set.h \
         test/simple_protocol_moc.h \
         test/simple_worker_moc.h \
+        test/test_binary_tree.h \
+        test/test_command.h \
+        test/test_fenwick_tree.h \
+        test/test_heap.h \
+        test/test_lru_cache.h \
         test/test_message_queue.h \
+        test/test_segment_tree.h \
+        test/test_semaphore.h \
+        test/test_timer.h \
+        test/test_tree.h \
+        test/test_union_find.h \
+        test/test_union_set.h \
         test/test_wrapper_thread.h \
         tools/delimiters.h \
         tools/divisors.h \
@@ -44,6 +57,7 @@ HEADERS += \
         tools/math_operation.h \
         tools/memory.h \
         tools/random.h \
+        tools/timestamp.h \
         tools/types.h
 
 testmode {
@@ -88,5 +102,16 @@ unix {
 }
 
 SOURCES += \
+  test/test_binary_tree.cpp \
+  test/test_command.cpp \
+  test/test_fenwick_tree.cpp \
+  test/test_heap.cpp \
+  test/test_lru_cache.cpp \
   test/test_message_queue.cpp \
+  test/test_segment_tree.cpp \
+  test/test_semaphore.cpp \
+  test/test_timer.cpp \
+  test/test_tree.cpp \
+  test/test_union_find.cpp \
+  test/test_union_set.cpp \
   test/test_wrapper_thread.cpp

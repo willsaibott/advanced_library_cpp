@@ -10,7 +10,6 @@
 namespace advanced {
 namespace concurrency {
 
-
 /**
  * Basic simple Thread that reacts after receives a message.
  * 1. You just need to override the pure virtual method "on_new_message"
@@ -21,6 +20,13 @@ namespace concurrency {
  * override the "on_stop" method.
  *
  * All methods are reentrant
+ *
+ * Note:
+ * If you override on_start and on_stop functions, do not forget to call
+ * the "safe_delete" method on destructor
+ * Also, the on_start and on_stop methods won't be executed if the destructor
+ * object of message_queue_t is called before the message_queue_t has been
+ * stopped
  */
 template<class queue>
 class message_queue_t : public thread_t {
@@ -33,9 +39,18 @@ class message_queue_t : public thread_t {
    */
   virtual
   ~message_queue_t() override {
+    safe_delete();
+    clear();
+  }
+
+  /**
+   * Call it in your destructor if you override the on_start and/or on_stop
+   * methods
+   */
+  void
+  safe_delete() {
     stop();
     join();
-    clear();
   }
 
   /**
@@ -147,6 +162,10 @@ class message_queue_t : public thread_t {
   /**
    * Override it if you need to do some initialization
    * Called once before the object starts listening to new messages
+   *
+   * Note:
+   * If you override on_start and/or on_stop functions, do not forget to call
+   * the "safe_delete" method on destructor
    */
   virtual void
   on_start() { }
@@ -154,6 +173,10 @@ class message_queue_t : public thread_t {
   /**
    * Override it if you need to do some cleanup
    * Called once after the object stops processing messages.
+   *
+   * Note:
+   * If you override on_start and/or on_stop functions, do not forget to call
+   * the "safe_delete" method on destructor
    */
   virtual void
   on_stop() { }

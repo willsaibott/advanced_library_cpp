@@ -11,6 +11,7 @@
 #include "test_subarray.h"
 #include "test_wrapper_thread.h"
 #include "test_message_queue.h"
+#include "test_lru_cache.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -30,6 +31,7 @@ main(int argc, char** argv) {
     new TestSubArray(),
     new TestWrapperThread(),
     new TestMessageQueue(),
+    new TestLRUCache()
   };
 
   fs::create_directory("results");

@@ -7,6 +7,8 @@
 namespace advanced {
 namespace sequences {
 
+  /** @test TestMissingElements in test/test_missing_elements(.h|.cpp) */
+
   class invalid_sequence_t : public std::runtime_error {
   public:
     invalid_sequence_t() : std::runtime_error ("Invalid sequence") {}

@@ -4,6 +4,8 @@
 namespace advanced {
 namespace structures {
 
+/** @test Todo */
+
 template<typename command>
 class command_manager_t {
   public:

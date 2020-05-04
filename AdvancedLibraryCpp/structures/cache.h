@@ -7,6 +7,8 @@
 namespace advanced {
 namespace structures {
 
+/** @test TestLRUCache in test/test_lru_cache(.h|.cpp) */
+
 /**
  * @brief Templated LRU Cache implementation
  * @see   https://www.geeksforgeeks.org/lru-cache-implementation/

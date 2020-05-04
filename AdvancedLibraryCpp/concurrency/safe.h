@@ -4,6 +4,8 @@
 namespace advanced {
 namespace concurrency {
 
+/** @test TestLockable in test/test_lockable(.h|.cpp) */
+
 /**
  * class lockable_t is a wrapper for an object that makes it lockable because
  * it inherits the original object class and also the mutex_t passed as template

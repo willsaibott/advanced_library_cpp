@@ -5,6 +5,8 @@
 namespace advanced {
 namespace concurrency {
 
+/** @test TestWrapperThread in test/test_wrapper_thread(.h|.cpp) */
+
 /**
  * @brief std::thread Wrapper class.
  *

@@ -7,6 +7,7 @@
 namespace advanced {
 namespace sequences {
 
+  /** @test TestSubset in test/test_subset(.h|.cpp) */
   /**
    * Static class to perform classic subset operations like sum of subsets and
    * so on...

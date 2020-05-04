@@ -10,6 +10,8 @@
 namespace advanced {
 namespace concurrency {
 
+/** @test TestMessageQueue in test/test_message_queue(.h|.cpp) */
+
 /**
  * Basic simple Thread that reacts after receives a message.
  * 1. You just need to override the pure virtual method "on_new_message"

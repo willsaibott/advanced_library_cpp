@@ -8,6 +8,7 @@
 namespace advanced {
 namespace sequences {
 
+  /** @test TestSubArray in test/test_subarray(.h|.cpp) */
   /**
    * Static class to perform classic subarray operations like sum of subarrays
    * and so on...

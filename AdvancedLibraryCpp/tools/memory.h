@@ -3,6 +3,8 @@
 namespace advanced {
 namespace tools {
 
+/** @test TestMemory in test/test_memory(.h|.cpp) */
+
 /**
  * @brief make_unique implementation for C++11
  */

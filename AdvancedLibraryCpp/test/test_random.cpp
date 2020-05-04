@@ -76,8 +76,8 @@ test_char_random() {
     QVERIFY(c == 'a' || c == 'e' || c == ';' || c == '0' || c == '\n');
   }
 
-  char empty = next_random_char("");
-  QVERIFY(empty == '\0');
+  char any_char = next_random_char();
+  QVERIFY(std::isprint(any_char));
 
   char unique = next_random_char("a");
   QVERIFY(unique == 'a');
@@ -93,8 +93,11 @@ test_string_random() {
     }
   }
 
-  std::string empty{ next_random_string(20, "") };
-  QVERIFY(empty == "");
+  std::string empty{ next_random_string(1000) };
+  QVERIFY(std::all_of(empty.begin(),
+                      empty.end(),
+                      [](char c) { return std::isprint(c); }));
+
 
   std::string unique = next_random_string(20, "a");
   QVERIFY(std::all_of(unique.begin(),

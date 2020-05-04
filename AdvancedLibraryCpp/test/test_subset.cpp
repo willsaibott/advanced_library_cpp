@@ -14,7 +14,7 @@ TestSubset(QObject *parent) : QObject(parent) {
 void TestSubset::
 test_subset_of_vector_with_sum_zero() {
   const std::vector<long> input { 2, 3, -3, -5, 8, 0, 9, 10 };
-  const long expected{ 8 };
+  const size_t expected{ 8 };
   const auto actual =
       subset_t<long>::sum_of_subsets(input.begin(), input.end(), 0);
   QCOMPARE(actual, expected);
@@ -23,7 +23,7 @@ test_subset_of_vector_with_sum_zero() {
 void TestSubset::
 test_subset_of_vector_with_sum_non_zero() {
   const std::vector<long> input { 2, 3, -3, -5, 8, 0, 9, 10 };
-  const long expected{ 8 };
+  const size_t expected{ 8 };
   const auto actual =
       subset_t<long>::sum_of_subsets(input.begin(), input.end(), 2);
   QCOMPARE(actual, expected);
@@ -40,7 +40,7 @@ test_subset_of_vector_with_sum_non_zero() {
 void TestSubset::
 test_subset_of_array_with_sum_zero() {
   const std::array<long, 8> input { 2, 3, -3, -5, 8, 0, 9, 10 };
-  const long expected{ 8 };
+  const size_t expected{ 8 };
   const auto actual =
       subset_t<long>::sum_of_subsets(input.begin(), input.end(), 0);
   QCOMPARE(actual, expected);
@@ -49,7 +49,7 @@ test_subset_of_array_with_sum_zero() {
 void TestSubset::
 test_subset_of_array_with_sum_non_zero() {
   const std::array<long, 8> input { 2, 3, -3, -5, 8, 0, 9, 10 };
-  const long expected{ 8 };
+  const size_t expected{ 8 };
   const auto actual =
       subset_t<long>::sum_of_subsets(input.begin(), input.end(), 2);
   QCOMPARE(actual, expected);

@@ -36,21 +36,6 @@ HEADERS += \
         structures/tree.h \
         structures/union_find.h \
         structures/union_set.h \
-        test/simple_protocol_moc.h \
-        test/simple_worker_moc.h \
-        test/test_binary_tree.h \
-        test/test_command.h \
-        test/test_fenwick_tree.h \
-        test/test_heap.h \
-        test/test_lru_cache.h \
-        test/test_message_queue.h \
-        test/test_segment_tree.h \
-        test/test_semaphore.h \
-        test/test_timer.h \
-        test/test_tree.h \
-        test/test_union_find.h \
-        test/test_union_set.h \
-        test/test_wrapper_thread.h \
         tools/delimiters.h \
         tools/divisors.h \
         tools/enum_factory.h \
@@ -72,17 +57,46 @@ testmode {
                 test/test_missing_elements.h \
                 test/test_subarray.h \
                 test/test_subset.h \
+                test/simple_protocol_moc.h \
+                test/simple_worker_moc.h \
+                test/test_binary_tree.h \
+                test/test_command.h \
+                test/test_fenwick_tree.h \
+                test/test_heap.h \
+                test/test_lru_cache.h \
+                test/test_message_queue.h \
+                test/test_segment_tree.h \
+                test/test_semaphore.h \
+                test/test_timer.h \
+                test/test_tree.h \
+                test/test_union_find.h \
+                test/test_union_set.h \
+                test/test_wrapper_thread.h \
                 test/test_lockable.h
     SOURCES  += \
                 test/test_memory.cpp \
                 test/test_stream_delimiters.cpp \
-                test/tests.cpp \
                 test/test_enum.cpp \
                 test/test_random.cpp \
                 test/test_lockable.cpp \
                 test/test_missing_elements.cpp \
                 test/test_subarray.cpp \
-                test/test_subset.cpp
+                test/test_subset.cpp \
+                test/test_binary_tree.cpp \
+                test/test_command.cpp \
+                test/test_fenwick_tree.cpp \
+                test/test_heap.cpp \
+                test/test_lru_cache.cpp \
+                test/test_message_queue.cpp \
+                test/test_segment_tree.cpp \
+                test/test_semaphore.cpp \
+                test/test_timer.cpp \
+                test/test_tree.cpp \
+                test/test_union_find.cpp \
+                test/test_union_set.cpp \
+                test/test_wrapper_thread.cpp \
+                test/tests.cpp
+
     TEMPLATE  = app
     CONFIG   += c++17 - Wall
     LIBS     += -lstdc++fs
@@ -101,17 +115,3 @@ unix {
     INSTALLS += target
 }
 
-SOURCES += \
-  test/test_binary_tree.cpp \
-  test/test_command.cpp \
-  test/test_fenwick_tree.cpp \
-  test/test_heap.cpp \
-  test/test_lru_cache.cpp \
-  test/test_message_queue.cpp \
-  test/test_segment_tree.cpp \
-  test/test_semaphore.cpp \
-  test/test_timer.cpp \
-  test/test_tree.cpp \
-  test/test_union_find.cpp \
-  test/test_union_set.cpp \
-  test/test_wrapper_thread.cpp

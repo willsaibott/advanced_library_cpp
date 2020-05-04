@@ -13,7 +13,7 @@ TestSubArray(QObject *parent) : QObject(parent) {
 void TestSubArray::
 test_max_length_of_subvector_of_sum_zero() {
   const std::vector<long> input { 2, 3, -3, -5, 8, 0, 9, 10 };
-  const long expected{ 4 };
+  const size_t expected{ 4 };
   const auto actual =
       subarray_t<long>::max_length_of_sum(input.begin(), input.end(), 0);
   QCOMPARE(actual, expected);
@@ -22,7 +22,7 @@ test_max_length_of_subvector_of_sum_zero() {
 void TestSubArray::
 test_max_length_of_subvector_of_sum_non_zero() {
   const std::vector<long> input { 2, 3, -3, -5, 8, 0, 9, 10 };
-  const long expected{ 6 };
+  const size_t expected{ 6 };
   const auto actual =
       subarray_t<long>::max_length_of_sum(input.begin(), input.end(), 12);
   QCOMPARE(actual, expected);
@@ -31,7 +31,7 @@ test_max_length_of_subvector_of_sum_non_zero() {
 void TestSubArray::
 test_max_length_of_subarray_of_sum_zero() {
   const std::array<long, 8> input { 2, 3, -3, -5, 8, 0, 9, 10 };
-  const long expected{ 4 };
+  const size_t expected{ 4 };
   const auto actual =
       subarray_t<long>::max_length_of_sum(input.begin(), input.end(), 0);
   QCOMPARE(actual, expected);
@@ -40,7 +40,7 @@ test_max_length_of_subarray_of_sum_zero() {
 void TestSubArray::
 test_max_length_of_subarray_of_sum_non_zero() {
   const std::array<long, 8> input { 2, 3, -3, -5, 8, 0, 9, 10 };
-  const long expected{ 5 };
+  const size_t expected{ 5 };
   const auto actual =
       subarray_t<long>::max_length_of_sum(input.begin(), input.end(), 3);
   QCOMPARE(actual, expected);

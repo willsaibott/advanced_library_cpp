@@ -22,7 +22,8 @@ namespace test {
 
   public:
 
-    ~start_only () {
+    virtual
+    ~start_only () override {
       _running = false;
     }
 

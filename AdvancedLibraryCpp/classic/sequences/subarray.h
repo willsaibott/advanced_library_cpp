@@ -8,11 +8,22 @@
 namespace advanced {
 namespace sequences {
 
+  /**
+   * Static class to perform classic subarray operations like sum of subarrays
+   * and so on...
+   */
   template <typename number_t = int>
   class subarray_t {
 
   public:
 
+    /**
+     * It returns the size of the longest subarray that have sum equals to
+     * the param required_sum.
+     * It uses dynamic programming to solve it.
+     * Time Complexity:  O(n)
+     * Space Complexity: O(n)
+     */
     template <class ForwardIt>
     static inline size_t
     max_length_of_sum(ForwardIt first, ForwardIt last, number_t required_sum) {
@@ -42,6 +53,11 @@ namespace sequences {
       return max_length;
     }
 
+    /**
+     * It returns the greatest sum of subarrays using dynamic programming
+     * Time Complexity:  O(n)
+     * Space Complexity: O(1)
+     */
     template <class ForwardIt>
     static inline number_t
     max_sum_of(ForwardIt first, ForwardIt last) {

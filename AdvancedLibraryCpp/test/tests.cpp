@@ -12,6 +12,8 @@
 #include "test_wrapper_thread.h"
 #include "test_message_queue.h"
 #include "test_lru_cache.h"
+#include "test_semaphore.h"
+#include "test_timer.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -31,7 +33,9 @@ main(int argc, char** argv) {
     new TestSubArray(),
     new TestWrapperThread(),
     new TestMessageQueue(),
-    new TestLRUCache()
+    new TestLRUCache(),
+    new TestSemaphore(),
+    new TestTimer(),
   };
 
   fs::create_directory("results");

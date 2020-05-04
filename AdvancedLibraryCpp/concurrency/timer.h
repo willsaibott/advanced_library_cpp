@@ -10,7 +10,7 @@
 namespace advanced {
 namespace concurrency {
 
-/** @test Todo */
+/** @test TestTimer in tests/test_timer(.h|.cpp) */
 
 /**
  * Base class for a timer that executes the function on_interval every
@@ -35,7 +35,7 @@ class base_timer_t : public thread_t {
 
   virtual
   ~base_timer_t() override {
-    std::unique_lock guard{ _deletion_mtx };
+    std::unique_lock<std::mutex> guard{ _deletion_mtx };
     _deleted = true;
     guard.unlock();
     safe_delete();
@@ -75,6 +75,8 @@ class base_timer_t : public thread_t {
     _interval_ms = std::chrono::milliseconds{ interval_ms };
   }
 
+protected:
+
   /**
    * Call it in your destructor if you override the on_start and/or on_stop
    * methods
@@ -84,8 +86,6 @@ class base_timer_t : public thread_t {
     stop();
     join();
   }
-
-protected:
 
   /**
    * on stop callback handler. You should override this method if you need to do
@@ -120,8 +120,8 @@ protected:
 
   private:
 
-  inline int
-  run(void) override {
+  virtual int
+  run(void) final override {
     using std::chrono::milliseconds;
     int return_value{ EXIT_SUCCESS };
     milliseconds remaing_time{ _interval_ms };
@@ -130,7 +130,7 @@ protected:
     _is_running = true;
     tools::timestamp_t timestamp;
     while (_is_running) {
-      std::unique_lock guard{ _mtx };
+      std::unique_lock<std::mutex> guard{ _deletion_mtx };
       auto cv_status = _cv.wait_for(guard, remaing_time);
       if (_is_running) {
         if ((std::cv_status::timeout == cv_status || _forced_awaken)) {
@@ -152,7 +152,7 @@ protected:
 
   inline void
   _on_start() {
-    std::unique_lock guard{ _deletion_mtx };
+    std::unique_lock<std::mutex> guard{ _deletion_mtx };
     if (!_deleted) {
       on_start();
     }
@@ -160,7 +160,7 @@ protected:
 
   inline void
   _on_stop() {
-    std::unique_lock guard{ _deletion_mtx };
+    std::unique_lock<std::mutex> guard{ _deletion_mtx };
     if (!_deleted) {
       on_stop();
     }

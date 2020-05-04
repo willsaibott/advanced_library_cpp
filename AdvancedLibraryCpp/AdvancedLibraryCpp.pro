@@ -60,6 +60,7 @@ testmode {
                 test/simple_protocol_moc.h \
                 test/simple_worker_moc.h \
                 test/test_binary_tree.h \
+                test/test_avl_tree.h \
                 test/test_command.h \
                 test/test_fenwick_tree.h \
                 test/test_heap.h \
@@ -95,6 +96,7 @@ testmode {
                 test/test_union_find.cpp \
                 test/test_union_set.cpp \
                 test/test_wrapper_thread.cpp \
+                test/test_avl_tree.cpp \
                 test/tests.cpp
 
     TEMPLATE  = app
@@ -114,4 +116,5 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
 

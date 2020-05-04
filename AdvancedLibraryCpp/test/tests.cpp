@@ -14,6 +14,7 @@
 #include "test_lru_cache.h"
 #include "test_semaphore.h"
 #include "test_timer.h"
+#include "test_binary_tree.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -36,6 +37,7 @@ main(int argc, char** argv) {
     new TestLRUCache(),
     new TestSemaphore(),
     new TestTimer(),
+    new TestBinaryTree(),
   };
 
   fs::create_directory("results");

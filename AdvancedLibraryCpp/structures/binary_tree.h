@@ -4,11 +4,14 @@
 namespace advanced {
 namespace structures {
 
-/** @test Todo */
+/** @test TestBinaryTree in tests/test_binary_tree(.h|.cpp) */
 
 template <class T>
 class binary_tree_t;
 
+/**
+ * @brief templated binary node to be inserted into the bianry tree object
+ */
 template <class T>
 class binary_node_t : public base_node_t<T, binary_node_t<T>> {
   friend class binary_tree_t<T>;
@@ -22,35 +25,93 @@ public:
     right = 1
   };
 
+  /**
+   * @brief left returns the left node
+   * @return     returns the left node
+   * @throws null_node_exception_t if left is null
+   */
   node_type_t&
   left() {
+    if (!_left) {
+      throw null_node_exception_t{};
+    }
     return *_left;
   }
 
+  /**
+   * @brief left returns the left node in a const context
+   * @return     returns the left node
+   * @throws null_node_exception_t if left is null
+   */
+  const node_type_t&
+  left() const {
+    if (!_left) {
+      throw null_node_exception_t{};
+    }
+    return *_left;
+  }
+
+  /**
+   * @brief right returns the right node
+   * @return      returns the right node
+   * @throws null_node_exception_t if right is null
+   */
   node_type_t&
   right() {
+    if (!_right) {
+      throw null_node_exception_t{};
+    }
     return *_right;
   }
 
+  /**
+   * @brief right returns the right node in a const context
+   * @return      returns the right node
+   * @throws null_node_exception_t if right is null
+   */
+  const node_type_t&
+  right() const {
+    if (!_right) {
+      throw null_node_exception_t{};
+    }
+    return *_right;
+  }
+
+
+  /**
+   * @brief has_left returns whether the node has or not left child
+   * @return whether the node has or not left child
+   */
   inline bool
   has_left() const {
     return _left;
   }
 
+  /**
+   * @brief has_right returns whether the node has or not right child
+   * @return whether the node has or not right child
+   */
   inline bool
   has_right() const {
     return _right;
   }
 
-  inline size_t
-  children_count() const {
+  /**
+   * @brief children_count  number of children nodes
+   * @return number of children nodes
+   */
+  virtual size_t
+  children_count() const override {
     return has_left() + has_right();
   }
 
   binary_node_t() = default;
 
+  /**
+   * Contructor that forward anything to base_node constructor
+   */
   template<typename ...Args>
-  binary_node_t(Args...args)
+  binary_node_t(Args&&...args)
       : base_node_t<T, binary_node_t<T> > (std::forward<Args>(args)...)
   { }
 
@@ -63,6 +124,12 @@ public:
     delete_child(direction::right);
   }
 
+  /**
+   * @brief add_left  add left child
+   * @param child
+   * @return whether it could be added or not, it means, if there was no
+   * previous left child
+   */
   virtual bool
   add_left(const T& child) {
     bool ok{ !_left };
@@ -72,6 +139,12 @@ public:
     return ok;
   }
 
+  /**
+   * @brief add_right add right child
+   * @param child
+   * @return whether it could be added or not, it means, if there was no
+   * previous left child
+   */
   virtual bool
   add_right(const T& child) {
     bool ok{ !_right };
@@ -81,12 +154,22 @@ public:
     return ok;
   }
 
+  /**
+   * @brief delete_child deletes a child
+   * @param index
+   * @return
+   */
   virtual bool
   delete_child(size_t index) override {
     direction node{ static_cast<direction>(index) };
     return delete_child(node);
   }
 
+  /**
+   * @brief delete_child deletes a child
+   * @param node
+   * @return
+   */
   virtual bool
   delete_child(direction node) {
     bool ok{ false };
@@ -95,7 +178,7 @@ public:
       _left = nullptr;
       ok = true;
     }
-    else if (node == direction::right && _left) {
+    else if (node == direction::right && _right) {
       delete _right;
       _right = nullptr;
       ok = true;
@@ -103,17 +186,22 @@ public:
     return ok;
   }
 
+  /**
+   * @brief swap  It swaps the current node with one of it's children, left or
+   * right
+   * @param node
+   */
   void
   swap(direction node) {
     switch (node) {
     case direction::left:
       if (has_left()) {
-        base_type_t::swap(*left());
+        base_type_t::swap(left());
       }
       break;
     case direction::right:
       if (has_right()) {
-        base_type_t::swap(*right());
+        base_type_t::swap(right());
       }
       break;
 
@@ -131,6 +219,9 @@ protected:
 
 };
 
+/**
+ * @brief templated simple binary tree
+ */
 template <class T>
 class binary_tree_t : public tree_t<T, binary_node_t<T>>{
 public:
@@ -143,29 +234,51 @@ public:
   binary_tree_t(const T& root) : tree_t<T, binary_node_t<T> > (root)
   { }
 
-protected:
   binary_tree_t() = default;
+
+protected:
 };
 
+/**
+ * @brief templated avl tree
+ */
 template <class T>
 class avl_tree_t : public tree_t<T, binary_node_t<T>>{
 public:
   using node_type_t = binary_node_t<T>;
 
+  /**
+   * @brief It forwars anything to binary_node custom constructor
+   */
   template <typename ...Args>
-  avl_tree_t(Args...args)
+  avl_tree_t(Args&&...args)
     :  tree_t<T, binary_node_t<T> > (std::forward<Args>(args)...)
   { }
 
+  /**
+   * @brief avl_tree_t  default constructor
+   * @param root
+   */
   avl_tree_t(const T& root) : tree_t<T, binary_node_t<T> > (root)
   { }
 
+  /**
+   * @brief insert inserts a non existent previously value in the tree
+   * @param value
+   * @return  whether the value was inserted or not, if the value is already in
+   * tree it will return false
+   */
   bool
   insert(const T& value) {
     auto it = insert(this->_root, value);
     return it != nullptr;
   }
 
+  /**
+   * @brief remove  it removes a value from the tree
+   * @param value
+   * @return   If the tree contained the value
+   */
   bool
   remove(const T& value) {
     auto it = remove(this->_root, value);
@@ -175,6 +288,13 @@ public:
   protected:
   avl_tree_t() = default;
 
+  /**
+   * @brief insert  inserts the value into the tree, make necessary rotations
+   * to keep tree's balance
+   * @param node
+   * @param value
+   * @return
+   */
   node_type_t*
   insert(node_type_t* node, const T& value) {
     node_type_t* result{ nullptr };
@@ -227,6 +347,13 @@ public:
     return result;
   }
 
+  /**
+   * @brief remove remove an element from tree, rotate if necessary to keep the
+   * tree's balance
+   * @param node
+   * @param value
+   * @return
+   */
   node_type_t*
   remove(node_type_t* node, const T& value) {
     node_type_t* temp{ nullptr };
@@ -242,7 +369,7 @@ public:
       // Element found With 2 children
       else if (node->_left && node->_right) {
          temp = leftmost(node->_right);
-         node->set_node(*temp);
+         node->set_value(*temp);
          node->_right = remove(*temp, node->_right);
       }
       // With one or zero child
@@ -289,11 +416,21 @@ public:
     return node;
   }
 
+  /**
+   * @brief height   height of a node
+   * @param node
+   * @return height of a node
+   */
   inline static long long
   height(node_type_t* node) {
     return node ? node->_height : 0;
   }
 
+  /**
+   * @brief rotate_right rotate a node to right
+   * @param other
+   * @return
+   */
   inline static node_type_t*
   rotate_right(node_type_t* & other) {
     auto tmp{ other->_left };
@@ -304,6 +441,11 @@ public:
     return tmp;
   }
 
+  /**
+   * @brief rotate_left rotate a node to left
+   * @param other
+   * @return
+   */
   inline static node_type_t*
   rotate_left(node_type_t* & other) {
     auto tmp{ other->_right };
@@ -313,23 +455,45 @@ public:
     tmp->_height   = std::max(height(other->_right), other->_height)        + 1;
   }
 
+  /**
+   * @brief double_rotate_left rotates a node to left after rotates it's right
+   * child to right
+   * @param node
+   * @return
+   */
   inline static node_type_t*
   double_rotate_left(node_type_t* &node) {
     node->_right = rotate_right(node->_right);
     return rotate_left(node);
   }
 
+  /**
+   * @brief double_rotate_right rotates a node to right after rotates it's left
+   * child to left
+   * @param node
+   * @return
+   */
   inline static node_type_t*
   double_rotate_right(node_type_t* &node) {
     node->_left = rotate_left(node->_left);
     return rotate_right(node);
   }
 
+  /**
+   * @brief leftmost   get the leftmost decendent of a node
+   * @param node
+   * @return
+   */
   inline static node_type_t*
   leftmost(node_type_t* node) {
     return node->has_left() ? leftmost(node->_left) : node;
   }
 
+  /**
+   * @brief rightmost  get the rightmost decendent of a node
+   * @param node
+   * @return
+   */
   inline static node_type_t*
   rightmost(node_type_t* node) {
     return node->has_right() ? leftmost(node->_right) : node;

@@ -1,12 +1,19 @@
 #pragma once
 #include <memory>
-#include <vector>
+#include <list>
 #include <algorithm>
+#include <stdexcept>
 
 namespace advanced {
 namespace structures {
 
 /** @test Todo */
+
+class null_node_exception_t : public std::runtime_error {
+public:
+  null_node_exception_t() :
+    std::runtime_error{ "You are trying to access a null pointer node" } { }
+};
 
 template <class T, class node_type>
 class tree_t;
@@ -15,16 +22,29 @@ template <class T, class node_type_t>
 class base_node_t {
 public:
 
+
+  /**
+   * @brief set_value set_value of a node
+   * @param node
+   */
   void
-  set_node(const T& node) {
+  set_value(const T& node) {
     _node = node;
   }
 
+  /**
+   * @brief set_value set_value of a node in place
+   * @param node
+   */
   void
-  set_node(T&& node) {
+  set_value(T&& node) {
     _node = std::move(node);
   }
 
+  /**
+   * @brief set_parent    set node witch is the parent of this
+   * @param parent
+   */
   virtual void
   set_parent(node_type_t* parent) {
     _parent = parent;
@@ -33,6 +53,11 @@ public:
   virtual bool
   delete_child(size_t child) = 0;
 
+  /**
+   * @brief swap_move  swap using move if allowed
+   * @param other
+   * @return
+   */
   typename std::enable_if<std::is_move_constructible<T>::value, void>::type
   swap_move(node_type_t& other) {
     T tmp       = std::move(other._node);
@@ -40,6 +65,11 @@ public:
     _node       = std::move(tmp);
   }
 
+  /**
+   * @brief swap  swap using normal copy
+   * @param other
+   * @return
+   */
   typename std::enable_if<std::is_copy_constructible<T>::value, void>::type
   swap(node_type_t& other) {
     T tmp       = other._node;
@@ -47,32 +77,74 @@ public:
     _node       = tmp;
   }
 
+  /**
+   * @brief has_parent whether the node has or not a parent
+   * @return
+   */
+  inline bool
+  has_parent() const {
+    return _parent;
+  }
+
+  /**
+   * @brief parent  return it's parent
+   * @return it's parent
+   * @throws null_node_exception_t if parent is null
+   */
   node_type_t&
   parent() {
+    if (!_parent) {
+      throw null_node_exception_t{};
+    }
     return _parent;
   }
 
+  /**
+   * @brief parent  return it's parent in a const context
+   * @return
+   * @throws null_node_exception_t if parent is null
+   */
   const node_type_t&
   parent() const {
-    return _parent;
+    if (!_parent) {
+      throw null_node_exception_t{};
+    }
+    return *_parent;
   }
 
+  /**
+   * @brief operator T returns the value if casted to it
+   */
   inline operator T() const {
     return _node;
   }
 
+  /**
+   * @brief operator * returns the value
+   */
   inline T&operator*() {
     return _node;
   }
 
+  /**
+   * @brief operator * returns the value in a const context
+   */
   inline const T&operator*() const {
     return _node;
   }
 
+  /**
+   * @brief get returns a reference to value
+   * @return
+   */
   inline T&get() {
     return _node;
   }
 
+  /**
+   * @brief get returns a const reference to value in a const context
+   * @return
+   */
   inline const T&get() const {
     return _node;
   }
@@ -134,6 +206,11 @@ class tree_node_t : public base_node_t<T, tree_node_t<T, max_node_size>> {
 public:
   using node_type_t = tree_node_t<T, max_node_size>;
 
+  /**
+   * @brief add_child add a child node
+   * @param child
+   * @return
+   */
   virtual bool
   add_child(const T& child) {
     bool ok{ _children.size() < max_node_size };
@@ -143,6 +220,11 @@ public:
     return ok;
   }
 
+  /**
+   * @brief delete_child it deletes a child node indexed by param child
+   * @param child index of the deleted child
+   * @return
+   */
   virtual bool
   delete_child(size_t child) override {
     bool ok { child < _children.size() };
@@ -155,21 +237,36 @@ public:
     return ok;
   }
 
+  /**
+   * @brief child   get child at position pos
+   * @param pos index of child
+   * @return
+   */
   node_type_t&
   child(size_t pos) {
     return *_children.at(pos);
   }
 
+  /**
+   * @brief children_count  number of children nodes
+   * @return
+   */
   virtual inline size_t
   children_count() const override {
     return _children.size();
   }
 
+  /**
+   * Default construct if value type is also default constructible
+   */
   template <typename = typename std::enable_if<
               std::is_default_constructible<T>::value >
             ::type >
   tree_node_t() { }
 
+  /**
+   * Copy construct if value type is also copy constructible
+   */
   template <typename = typename std::enable_if<
               std::is_copy_constructible<T>::value >
             ::type >
@@ -177,6 +274,9 @@ public:
     : base_node_t<T, tree_node_t<T, max_node_size> > (node, parent)
   { }
 
+  /**
+   * Move construct if value type is also move constructible
+   */
   template <typename = typename std::enable_if<
               std::is_move_constructible<T>::value >
             ::type >
@@ -192,6 +292,9 @@ public:
     _children(std::move(other._children))
   {  }
 
+  /**
+   * Copy construct if value type is also copy constructible
+   */
   template <typename = typename std::enable_if<
               std::is_copy_constructible<T>::value >
             ::type >
@@ -216,7 +319,7 @@ public:
 
   protected:
 
-  std::vector<node_type_t*> _children;
+  std::list<node_type_t*> _children;
 };
 
 template <class T, class node_type>
@@ -230,20 +333,45 @@ public:
     }
   }
 
+  /**
+   * @brief tree_t  simple default constructor
+   * @param root
+   */
   tree_t(const T& root) : _root{ new node_type{ root } }
-  { }
+  {  }
 
+  /**
+   * initializes the root element with the arguments on it
+   */
   template <typename ...Args>
   tree_t(Args&&...args) :
     _root{ new node_type(std::forward<Args>(args)...) }
   { }
 
+  /**
+   * @brief root  it gets the root of three
+   * @return
+   * @throws null_node_exception_t if root is null
+   */
   node_type&
   root() {
+    if (!_root) {
+      throw null_node_exception_t{};
+    }
     return *_root;
   }
 
   tree_t() = default;
+
+  /**
+   * @brief add_root it adds a root object
+   * @param root
+   */
+  tree_t&
+  add_root(const T& root) {
+    _root = new node_type(root, nullptr);
+    return *this;
+  }
 
   protected:
 

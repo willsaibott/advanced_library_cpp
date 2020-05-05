@@ -1,0 +1,12 @@
+EXCLUDE_PATTERNS = */test/* \
+                   */test_* \
+                   */moc* \
+                   AdvancedLibraryCpp/build/*
+OUTPUT_DIRECTORY = docs
+GENERATE_HTML    = yes
+GENERATE_LATEX   = no
+INPUT            = .
+RECURSIVE        = YES
+MACRO_EXPANSION  = YES
+INCLUDE_PATH     = .
+PROJECT_NAME     = Advanced Library++

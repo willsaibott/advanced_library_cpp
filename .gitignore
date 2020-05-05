@@ -4,4 +4,5 @@ AdvancedLibraryCpp/Makefile
 AdvancedLibraryCpp/build*
 AdvancedLibraryCpp/*.o
 AdvancedLibraryCpp/moc*
+AdvancedLibraryCpp/docs*
 

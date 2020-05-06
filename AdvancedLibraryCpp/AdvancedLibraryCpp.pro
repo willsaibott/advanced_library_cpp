@@ -133,4 +133,11 @@ RCC_DIR     = $$PWD/build/$$DESTINATION_PATH/.qrc
 UI_DIR      = $$PWD/build/$$DESTINATION_PATH/.ui
 !build_pass:message(test output dir: $${DESTDIR})
 
+win32:VERSION = 0.1.0.0 # major.minor.patch.build
+else:VERSION  = 0.1.0   # major.minor.patch
+
+# --coverage option is synonym for: -fprofile-arcs -ftest-coverage -lgcov
+QMAKE_CXXFLAGS += --coverage
+QMAKE_LFLAGS += --coverage
+
 

@@ -159,7 +159,7 @@ class message_queue_t : public thread_t {
     }
     on_stop();
     return EXIT_SUCCESS;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * Override it if you need to do some initialization

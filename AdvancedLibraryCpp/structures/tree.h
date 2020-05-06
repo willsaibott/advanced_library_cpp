@@ -48,7 +48,7 @@ public:
   virtual void
   set_parent(node_type_t* parent) {
     _parent = parent;
-  }
+  } // LCOV_EXCL_LINE
 
   virtual bool
   delete_child(size_t child) = 0;
@@ -97,7 +97,7 @@ public:
       throw null_node_exception_t{};
     }
     return _parent;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * @brief parent  return it's parent in a const context
@@ -359,7 +359,7 @@ public:
       throw null_node_exception_t{};
     }
     return *_root;
-  }
+  } // LCOV_EXCL_LINE
 
   tree_t() = default;
 
@@ -371,7 +371,7 @@ public:
   add_root(const T& root) {
     _root = new node_type(root, nullptr);
     return *this;
-  }
+  } // LCOV_EXCL_LINE
 
   protected:
 

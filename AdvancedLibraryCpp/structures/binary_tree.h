@@ -36,7 +36,7 @@ public:
       throw null_node_exception_t{};
     }
     return *_left;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * @brief left returns the left node in a const context
@@ -49,7 +49,7 @@ public:
       throw null_node_exception_t{};
     }
     return *_left;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * @brief right returns the right node
@@ -62,7 +62,7 @@ public:
       throw null_node_exception_t{};
     }
     return *_right;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * @brief right returns the right node in a const context
@@ -75,8 +75,7 @@ public:
       throw null_node_exception_t{};
     }
     return *_right;
-  }
-
+  } // LCOV_EXCL_LINE
 
   /**
    * @brief has_left returns whether the node has or not left child
@@ -137,7 +136,8 @@ public:
       _left = new binary_node_t{ child, this };
     }
     return ok;
-  }
+  } // LCOV_EXCL_LINE
+// LCOV_EXCL_LINE
 
   /**
    * @brief add_right add right child
@@ -152,7 +152,8 @@ public:
       _right = new binary_node_t{ child, this };
     }
     return ok;
-  }
+  } // LCOV_EXCL_LINE
+// LCOV_EXCL_LINE
 
   /**
    * @brief delete_child deletes a child
@@ -205,9 +206,8 @@ public:
       }
       break;
 
-    default:
-      break;
-    }
+    default: break; // LCOV_EXCL_LINE
+    } // LCOV_EXCL_LINE
   }
 
 protected:

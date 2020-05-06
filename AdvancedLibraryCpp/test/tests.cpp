@@ -35,7 +35,7 @@ namespace fs = std::experimental::filesystem;
   }\
 */
 
-#define TESTGUI
+//#define TESTGUI
 #ifdef TESTGUI
 
 int main(int argc, char** argv) {

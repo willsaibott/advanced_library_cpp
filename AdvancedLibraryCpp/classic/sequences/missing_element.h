@@ -20,7 +20,7 @@ namespace sequences {
    * Time complexity: O(log n)
    */
   template <class ForwardIt, typename int_type_t = int>
-  inline std::pair<bool, int_type_t>
+  std::pair<bool, int_type_t>
   find_missing_arithmetic_in_sorted(ForwardIt         first,
                                     ForwardIt         last,
                                     const int_type_t& factor = static_cast<int_type_t>(1),
@@ -69,7 +69,7 @@ namespace sequences {
       }
     }
     return result;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * find missing element for a geometric progression in a sorted array\vector
@@ -83,7 +83,7 @@ namespace sequences {
             typename
               std::enable_if<!std::is_floating_point<int_type_t>::value>::type
             >
-  inline std::pair<bool, int_type_t>
+  std::pair<bool, int_type_t>
   find_missing_geometric_in_sorted(ForwardIt         first,
                                    ForwardIt         last,
                                    const int_type_t& factor,
@@ -143,7 +143,7 @@ namespace sequences {
       }
     }
     return result;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * find missing element for a geometric progression in a sorted array\vector
@@ -219,7 +219,7 @@ namespace sequences {
       }
     }
     return result;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * find missing sequential range using XOR in unsorted/sorted integer

@@ -148,7 +148,7 @@ protected:
     }
     on_stop();
     return return_value;
-  }
+  } // LCOV_EXCL_LINE
 
   inline void
   _on_start() {

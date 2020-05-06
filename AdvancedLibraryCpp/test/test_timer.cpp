@@ -83,8 +83,7 @@ test_simple_timer_should_work_with_1ms_time_resolution_and_error_under_5_percent
   test::concurrency::moc_timer timer{ interval_ms };
   timer.start();
   QTest::qWait(1000 * interval_ms);
-  timer.stop();
-  timer.join();
+  timer.stop(true);
 
   const auto& intervals{ timer.intervals() };
   double sum_of_intervals{ 0 };

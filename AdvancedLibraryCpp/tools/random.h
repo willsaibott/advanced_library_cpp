@@ -40,7 +40,7 @@ next_random(ul start, ul end) {
 
   distribution dist(start, end);
   return static_cast<int_type>(dist(rng));
-}
+} // LCOV_EXCL_LINE
 
 /**
  * @brief It generates a random number between (inclusive) "start" and "end"
@@ -57,7 +57,7 @@ next_random_double(double start, double end) {
 
   distribution dist(start, end);
   return dist(rng);
-}
+} // LCOV_EXCL_LINE
 
 /**
  * @brief It generates a random std::string of "count" size using the
@@ -87,7 +87,7 @@ next_random_string(size_t count, const std::string& character_set) {
     }
   }
   return output;
-}
+} // LCOV_EXCL_LINE
 
 /**
  * @brief It generates a random char using the character set as the possible
@@ -112,7 +112,7 @@ next_random_char(const std::string& character_set) {
     output = character_set[dist(rng)];
   }
   return output;
-}
+} // LCOV_EXCL_LINE
 
 }
 }

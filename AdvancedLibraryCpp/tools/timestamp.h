@@ -38,9 +38,10 @@ public:
    * @brief returns the time elapsed since the last reset, or the creation of
    * this object as the specific duration_type specified in the template argument
    */
-  template<class duration_type = std::chrono::milliseconds> duration_type
+  template<class duration_type = std::chrono::milliseconds>
+  inline duration_type
   difference() const {
-    using std::chrono::duration_cast;
+    using std::chrono::duration_cast; // LCOV_EXCL_LINE
     return duration_cast<duration_type>(clock_t::now() - _start);
   }
 

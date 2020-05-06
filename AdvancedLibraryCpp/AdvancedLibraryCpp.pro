@@ -44,6 +44,7 @@ HEADERS += \
         tools/timestamp.h \
         tools/types.h
 
+CONFIG+=testmode
 testmode {
     # ONLY TESTING UNIT
     QT       += testlib
@@ -116,5 +117,20 @@ unix {
     INSTALLS += target
 }
 
-CONFIG+=testmode
+INCLUDEPATH += source \
+               ../lib/source
+
+include(qmake-target-platform.pri)
+include(qmake-destination-path.pri)
+
+DISTFILES += \
+  qmake-destination-path.pri
+
+DESTDIR     = $$PWD/binaries/$$DESTINATION_PATH
+OBJECTS_DIR = $$PWD/build/$$DESTINATION_PATH/.obj
+MOC_DIR     = $$PWD/build/$$DESTINATION_PATH/.moc
+RCC_DIR     = $$PWD/build/$$DESTINATION_PATH/.qrc
+UI_DIR      = $$PWD/build/$$DESTINATION_PATH/.ui
+!build_pass:message(test output dir: $${DESTDIR})
+
 

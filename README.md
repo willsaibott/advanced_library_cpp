@@ -1,6 +1,9 @@
 # advanced_library_cpp
 Advanced library [In progress...] 
 
+AdvancedLibrary++ uses the QT Test framework, but you can clone this the as submodule and import the header as a normal
+header only static library.
+
 Some of the structures may not compile yet, It's because it's in progress... fell free to fork it, if you like it...
 I'll keep adding interesting stuff and fixing found bugs.
 

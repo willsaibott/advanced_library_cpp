@@ -1,7 +1,7 @@
 #include <vector>
 #include <array>
 #include "test_subarray.h"
-#include "../../classic/sequences/subarray.h"
+#include "../classic/sequences/subarray.h"
 
 using namespace advanced::sequences;
 

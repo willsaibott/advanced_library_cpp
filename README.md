@@ -4,6 +4,8 @@ Advanced library [In progress...]
 AdvancedLibrary++ uses the QT Test framework, but you can clone this the as submodule and import the header as a normal
 header only static library.
 
+AdvancedLibrary++ is using Clang6 and Clang9 as default compilers and llvm for test coverage
+
 Some of the structures may not compile yet, It's because it's in progress... fell free to fork it, if you like it...
 I'll keep adding interesting stuff and fixing found bugs.
 
@@ -21,5 +23,20 @@ once installed, please type:
  $ doxygen config
 ```
 
+What are you going to find here?
+* Advanced algorithms in c++
+* Advanced structures in c++
+* Useful toos for c++
+* Concurrency structures in c++
+* Test coverage
+* Qt Tests
+* @future=network library for rest, websocket, tcp and udp interprocess communication
+* @future=modules for IoT devices and raspberry PI
+* @future=Data Science
+* @future=Data Mining
+* @future=Genetic Programming
+* @future=OS specific features
+
+If you got interested and want to support us, in the future will open a kickstart project for donations!
 
 

@@ -46,7 +46,7 @@ class cache_t {
    * Const search, it does not change the internal list order of elements
    * @return whether element is present or not
    */
-  bool
+  virtual bool
   contains(const key_t& key) const {
     return _map.count(key);
   }
@@ -242,7 +242,7 @@ class cache_t {
   remove(const key_t& key) {
     auto it = _map.find(key);
     if (it != _map.end()) {
-      _list.erase(it);
+      _list.erase(it->second);
       _map.erase(key);
       _last_operation_result = true;
     }
@@ -259,6 +259,25 @@ class cache_t {
   size_t
   size() const {
     return _list.size();
+  }
+
+  /**
+   * @brief clear it will all entries in cache
+   * @note it won't call on_discard
+   */
+  void
+  clear() {
+    _map.clear();
+    _list.clear();
+  }
+
+  /**
+   * @brief empty: returns
+   * @return returns whether the cache is empty or not
+   */
+  inline bool
+  empty() const {
+    return size() == 0;
   }
 
   protected:

@@ -96,7 +96,7 @@ public:
     if (!_parent) {
       throw null_node_exception_t{};
     }
-    return _parent;
+    return *_parent;
   } // LCOV_EXCL_LINE
 
   /**
@@ -110,7 +110,7 @@ public:
       throw null_node_exception_t{};
     }
     return *_parent;
-  }
+  } // LCOV_EXCL_LINE
 
   /**
    * @brief operator T returns the value if casted to it
@@ -194,7 +194,7 @@ public:
 
   protected:
 
-  node_type_t* _parent{ this };
+  node_type_t* _parent{ nullptr };
   T            _node;
 
 };
@@ -328,9 +328,7 @@ public:
 
   virtual
   ~tree_t() {
-    if (_root) {
-      delete _root;
-    }
+    delete_root();
   }
 
   /**
@@ -361,7 +359,53 @@ public:
     return *_root;
   } // LCOV_EXCL_LINE
 
+  /**
+   * @brief root  it gets the root of three
+   * @return
+   * @throws null_node_exception_t if root is null
+   */
+  const node_type&
+  root() const {
+    if (!_root) {
+      throw null_node_exception_t{};
+    }
+    return *_root;
+  } // LCOV_EXCL_LINE
+
   tree_t() = default;
+
+  /**
+   * @brief tree_t  copy constructor, it copies only the root object
+   * @param other
+   */
+  tree_t(const tree_t& other) {
+    *this = other;
+  }
+
+  /**
+   * @brief tree_t  move constructor, it transfer the ownership from the
+   * original object to this object created
+   * @param other
+   */
+  tree_t(tree_t&& other) {
+    *this = std::move(other);
+  }
+
+  tree_t&
+  operator=(const tree_t& other) {
+    if (other.has_root()) {
+      _root = new node_type();
+      *_root = other.root();
+    }
+    return *this;
+  }
+
+  tree_t&
+  operator=(tree_t&& other) {
+    _root = other._root;
+    other._root = nullptr;
+    return *this;
+  }
 
   /**
    * @brief add_root it adds a root object
@@ -369,11 +413,25 @@ public:
    */
   tree_t&
   add_root(const T& root) {
+    delete_root();
     _root = new node_type(root, nullptr);
     return *this;
   } // LCOV_EXCL_LINE
 
+  inline bool
+  has_root() const {
+    return _root;
+  } // LCOV_EXCL_LINE
+
   protected:
+
+  void
+  delete_root() {
+    if (_root) {
+      delete _root;
+      _root = nullptr;
+    }
+  }
 
   node_type* _root{ nullptr };
 };

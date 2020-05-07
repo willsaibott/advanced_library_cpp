@@ -58,7 +58,8 @@ test_left_getter() {
 
   QVERIFY(father.add_left("brother"));
 
-  const auto& brother{ father.left() };
+  const auto& const_father{ father };
+  const auto& brother{ const_father.left() };
   QCOMPARE(brother.get(), "brother");
 }
 
@@ -72,7 +73,8 @@ test_right_getter() {
   QCOMPARE(mother.get(), "mother");
   QVERIFY(mother.add_right("sister"));
 
-  const auto& sister{ mother.right() };
+  const auto& const_mother{ mother };
+  const auto& sister{ const_mother.right() };
   QCOMPARE(sister.get(), "sister");
 }
 
@@ -154,7 +156,7 @@ test_custom_node_constructor() {
   binary_tree_t<std::string> str_tree("king");
   QCOMPARE(*str_tree.root(), "king");
 
-  binary_tree_t<int> int_tree(42);
+  const binary_tree_t<int> int_tree(42);
   QCOMPARE(*int_tree.root(), 42);
 
   {
@@ -258,6 +260,49 @@ test_swap() {
 }
 
 void TestBinaryTree::
+test_swap_move() {
+  binary_tree_t<test::structures::mock_node_value> tribe(
+        test::structures::mock_node_value{ 42, 100.0, "Tsunade" });
+  auto& hokkage{ tribe.root() };
+  hokkage.add_left({ 21, 50.0, "Kakashi" });
+  hokkage.add_right({ 12, 5000.0, "Naruto" });
+  QCOMPARE(hokkage.children_count(), 2u);
+
+  hokkage.swap_move(hokkage.left());
+  QCOMPARE(hokkage.get().name,    "Kakashi");
+  QCOMPARE(hokkage.get().int_v,   21);
+  QCOMPARE(hokkage.get().float_v, 50.0);
+
+  {
+    const auto& tsunade{ hokkage.left() };
+    QCOMPARE(tsunade.get().name,    "Tsunade");
+    QCOMPARE(tsunade.get().int_v,   42);
+    QCOMPARE(tsunade.get().float_v, 100.0);
+
+    const auto& naruto{ hokkage.right() };
+    QCOMPARE(naruto.get().name,    "Naruto");
+    QCOMPARE(naruto.get().int_v,   12);
+    QCOMPARE(naruto.get().float_v, 5000.0);
+  }
+
+  hokkage.swap_move(hokkage.right());
+  QCOMPARE(hokkage.get().name,    "Naruto");
+  QCOMPARE(hokkage.get().int_v,   12);
+  QCOMPARE(hokkage.get().float_v, 5000.0);
+  {
+    const auto& tsunade{ hokkage.left() };
+    QCOMPARE(tsunade.get().name,    "Tsunade");
+    QCOMPARE(tsunade.get().int_v,   42);
+    QCOMPARE(tsunade.get().float_v, 100.0);
+
+    const auto& kakashi{ hokkage.right() };
+    QCOMPARE(kakashi.get().name,    "Kakashi");
+    QCOMPARE(kakashi.get().int_v,   21);
+    QCOMPARE(kakashi.get().float_v, 50.0);
+  }
+}
+
+void TestBinaryTree::
 test_get_root() {
   binary_tree_t<test::structures::mock_node_value> tribe(
         test::structures::mock_node_value{ 42, 100.0, "Tsunade" });
@@ -285,4 +330,135 @@ test_children_nodes_should_throw_null_node_exception_when_they_are_null() {
   QVERIFY_EXCEPTION_THROWN(hokkage.left(),   null_node_exception_t);
   QVERIFY_EXCEPTION_THROWN(hokkage.right(),  null_node_exception_t);
   QVERIFY_EXCEPTION_THROWN(hokkage.parent(), null_node_exception_t);
+  QVERIFY_EXCEPTION_THROWN(tribe.root().left(),   null_node_exception_t);
+  QVERIFY_EXCEPTION_THROWN(tribe.root().right(),  null_node_exception_t);
+  QVERIFY_EXCEPTION_THROWN(tribe.root().parent(), null_node_exception_t);
+}
+
+void TestBinaryTree::
+test_set_value() {
+  binary_tree_t<test::structures::mock_node_value> tribe(
+        test::structures::mock_node_value{ 42, 100.0, "Tsunade" });
+  auto& hokkage{ tribe.root() };
+  hokkage.add_left({ 21, 50.0, "Kakashi" });
+  hokkage.add_right({ 12, 5000.0, "Naruto" });
+  QCOMPARE(hokkage.children_count(), 2u);
+
+  auto old_hokkage = hokkage.get();
+  hokkage.set_value(hokkage.left());
+  hokkage.left().set_value(old_hokkage);
+  QCOMPARE(hokkage.get().name,    "Kakashi");
+  QCOMPARE(hokkage.get().int_v,   21);
+  QCOMPARE(hokkage.get().float_v, 50.0);
+
+  {
+    const auto& tsunade{ hokkage.left() };
+    QCOMPARE(tsunade.get().name,    "Tsunade");
+    QCOMPARE(tsunade.get().int_v,   42);
+    QCOMPARE(tsunade.get().float_v, 100.0);
+
+    const auto& naruto{ hokkage.right() };
+    QCOMPARE(naruto.get().name,    "Naruto");
+    QCOMPARE(naruto.get().int_v,   12);
+    QCOMPARE(naruto.get().float_v, 5000.0);
+  }
+}
+
+void TestBinaryTree::
+test_set_parent() {
+  binary_tree_t<test::structures::mock_node_value> tribe(
+        test::structures::mock_node_value{ 42, 100.0, "Tsunade" });
+  auto& hokkage{ tribe.root() };
+  hokkage.set_parent(&hokkage);
+  QCOMPARE(hokkage.parent().get().name,    hokkage.get().name);
+  QCOMPARE(hokkage.parent().get().int_v,   hokkage.get().int_v);
+  QCOMPARE(hokkage.parent().get().float_v, hokkage.get().float_v);
+}
+
+void TestBinaryTree::
+test_has_parent() {
+  binary_tree_t<std::string> tree;
+  auto& root{ tree.add_root("grandpa").root() };
+
+  QVERIFY(!root.has_parent());
+  QVERIFY(root.add_left("father"));
+  QVERIFY(root.add_right("mother"));
+
+  auto& father{ root.left() };
+  auto& mother{ root.right() };
+  QVERIFY(father.has_parent());
+  QVERIFY(mother.has_parent());
+
+  mother.set_parent(nullptr);
+  father.set_parent(nullptr);
+  QVERIFY(!mother.has_parent());
+  QVERIFY(!father.has_parent());
+}
+
+void TestBinaryTree::
+test_parent_getter() {
+  binary_tree_t<std::string> tree;
+  auto& root{ tree.add_root("grandpa").root() };
+  QVERIFY(root.add_left("father"));
+  QVERIFY(root.add_right("mother"));
+
+  auto& father{ root.left() };
+  auto& mother{ root.right() };
+  QCOMPARE(father.parent().get(), "grandpa");
+  QCOMPARE(mother.parent().get(), "grandpa");
+
+  const auto& const_father{ father };
+  const auto& const_mother{ mother };
+  QCOMPARE(const_father.parent().get(), "grandpa");
+  QCOMPARE(const_mother.parent().get(), "grandpa");
+}
+
+void TestBinaryTree::
+test_null_root_should_throw_exception() {
+  binary_tree_t<test::structures::mock_node_value> tribe;
+  const auto& const_ref_tree{ tribe };
+  QVERIFY_EXCEPTION_THROWN(tribe.root(), null_node_exception_t);
+  QVERIFY_EXCEPTION_THROWN(const_ref_tree.root(), null_node_exception_t);
+}
+
+void TestBinaryTree::
+test_move_copy() {
+  binary_tree_t<std::string> tree;
+  auto& root{ tree.add_root("grandpa").root() };
+  QVERIFY(root.add_left("father"));
+  QVERIFY(root.add_right("mother"));
+
+  binary_tree_t<std::string> moved_tree = std::move(tree);
+  auto& moved_root{ moved_tree.root() };
+  auto& father2{ moved_root.left() };
+  auto& mother2{ moved_root.right() };
+  QCOMPARE(father2.get(), "father");
+  QCOMPARE(mother2.get(), "mother");
+
+  QVERIFY_EXCEPTION_THROWN(tree.root(), null_node_exception_t);
+
+  tree = std::move(moved_tree);
+  QCOMPARE(tree.root().left().get(), "father");
+  QCOMPARE(tree.root().right().get(), "mother");
+
+  QVERIFY_EXCEPTION_THROWN(moved_tree.root(), null_node_exception_t);
+
+  binary_tree_t<test::structures::mock_node_value> tribe(
+        test::structures::mock_node_value{ 42, 100.0, "Tsunade" });
+  auto& hokkage1{ tribe.root() };
+  hokkage1.add_left({ 21, 50.0, "Kakashi" });
+  hokkage1.add_right({ 12, 5000.0, "Naruto" });
+
+  binary_tree_t<test::structures::mock_node_value> copied_tree = tribe;
+  auto& hokkage2{ copied_tree.root() };
+
+  QCOMPARE(hokkage1.get().name,    hokkage2.get().name);
+  QCOMPARE(hokkage1.get().int_v,   hokkage2.get().int_v);
+  QCOMPARE(hokkage1.get().float_v, hokkage2.get().float_v);
+  QCOMPARE(hokkage1.left().get().name,    hokkage2.left().get().name);
+  QCOMPARE(hokkage1.left().get().int_v,   hokkage2.left().get().int_v);
+  QCOMPARE(hokkage1.left().get().float_v, hokkage2.left().get().float_v);
+  QCOMPARE(hokkage1.right().get().name,    hokkage2.right().get().name);
+  QCOMPARE(hokkage1.right().get().int_v,   hokkage2.right().get().int_v);
+  QCOMPARE(hokkage1.right().get().float_v, hokkage2.right().get().float_v);
 }

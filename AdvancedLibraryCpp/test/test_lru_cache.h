@@ -120,5 +120,9 @@ private slots:
   void test_on_discarded_method();
   void test_lru_cache_with_complex_datatypes();
   void test_for_range_loop();
+  void test_remove_element_from_cache();
+  void test_move_copy();
+  void test_cache_as_pointers();
+  void test_clear();
 };
 

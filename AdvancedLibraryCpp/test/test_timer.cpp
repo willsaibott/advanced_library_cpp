@@ -171,3 +171,29 @@ test_set_interval() {
   }
 }
 
+void TestTimer::
+test_is_running() {
+  const size_t interval_ms{ 10 };
+  test::concurrency::moc_timer timer{ interval_ms };
+
+  QVERIFY(!timer.is_running());
+  timer.start();
+  QTRY_VERIFY_WITH_TIMEOUT(timer.is_running(), 100);
+  timer.stop();
+  timer.join();
+}
+
+void TestTimer::
+test_notify() {
+  const size_t interval_ms{ 100 };
+  test::concurrency::moc_timer timer{ interval_ms };
+  QVERIFY(!timer.is_running());
+  timer.start();
+  QTest::qWait(10);
+  timer.notify();
+  QTest::qWait(100);
+  timer.stop();
+  timer.join();
+  QVERIFY(timer.intervals().front() < 100);
+}
+

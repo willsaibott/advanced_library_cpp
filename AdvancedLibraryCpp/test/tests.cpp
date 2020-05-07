@@ -15,6 +15,7 @@
 #include "test_semaphore.h"
 #include "test_timer.h"
 #include "test_binary_tree.h"
+#include "test_timestamp.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -225,6 +226,19 @@ int main(int argc, char** argv) {
       std::cerr << "Test " << suite << " returned: " << status << std::endl;
     }
   }
+  if (true)
+  {
+    TESTLIB_SELFCOVERAGE_START(TestTimestamp)
+        QCoreApplication app(argc, argv);
+    app.setAttribute(Qt::AA_Use96Dpi, true);
+    TestTimestamp test;
+    QTEST_SET_MAIN_SOURCE_PATH \
+        QString path { "results/" + test.objectName() + ".xml" };
+    auto status = QTest::qExec(&test, argc, argv);
+    if (status) {
+      std::cerr << "Test " << suite << " returned: " << status << std::endl;
+    }
+  }
 
 // Qt does not recognize under macros:  :(
 //  DECLARE_TEST(TestRandom)
@@ -261,9 +275,11 @@ main(int argc, char** argv) {
     new TestSemaphore(),
     new TestTimer(),
     new TestBinaryTree(),
+    new TestTimestamp(),
   };
 
   fs::create_directory("results");
+  system("rm -rf *.gcda");
 
   for (auto& test : test_suits) {
     QString path { "results/" + test->objectName() + ".xml" };

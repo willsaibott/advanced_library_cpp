@@ -35,6 +35,7 @@ HEADERS += \
         structures/tree.h \
         structures/union_find.h \
         structures/union_set.h \
+        test/test_timestamp.h \
         tools/delimiters.h \
         tools/divisors.h \
         tools/enum_factory.h \
@@ -140,4 +141,8 @@ else:VERSION  = 0.1.0   # major.minor.patch
 QMAKE_CXXFLAGS += --coverage
 QMAKE_LFLAGS += --coverage
 
+QMAKE_POST_LINK = rm -f build/$$DESTINATION_PATH/.obj/*gcda
+!build_pass:message(cleaning: rm -f "$$OBJECTS_DIR/*gcda")
 
+SOURCES += \
+  test/test_timestamp.cpp

@@ -21,11 +21,10 @@ class semaphore_t {
       : std::runtime_error{ msg } { }
   };
 
-  semaphore_t(semaphore_t &&)                 = default; // movable
+  semaphore_t(semaphore_t &&)                 = delete;  // non-movable
   semaphore_t(const semaphore_t &)            = delete;  // non-copyable
-  semaphore_t &operator=(semaphore_t &&)      = default; // movable
+  semaphore_t &operator=(semaphore_t &&)      = delete; //  non-movable
   semaphore_t &operator=(const semaphore_t &) = delete;  // non-copyable
-  virtual ~semaphore_t() {}
 
   /**
    * Constructor
@@ -149,8 +148,8 @@ class semaphore_t {
 
   mutable std::mutex              _mtx;
   std::condition_variable         _cv;
-  size_t                        _count{ 0ull };
-  size_t                        _available_resources;
+  size_t                          _count{ 0ull };
+  size_t                          _available_resources;
   const std::chrono::milliseconds _timeout_ms;
 };
 

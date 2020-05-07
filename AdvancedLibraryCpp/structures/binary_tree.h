@@ -107,6 +107,24 @@ public:
   binary_node_t() = default;
 
   /**
+   * @brief binary_node_t it completely copy the entire node and content
+   * @param other
+   */
+  binary_node_t(const binary_node_t& other) {
+    *this = other;
+  }
+
+  /**
+   * @brief binary_node_t  Move constructor, transfer the ownership of left and
+   * right child to the new object
+   * @param other
+   */
+  binary_node_t(binary_node_t&& other) {
+    *this = std::move(other);
+  }
+
+
+  /**
    * Contructor that forward anything to base_node constructor
    */
   template<typename ...Args>
@@ -114,8 +132,34 @@ public:
       : base_node_t<T, binary_node_t<T> > (std::forward<Args>(args)...)
   { }
 
-  binary_node_t& operator=(const binary_node_t& other) = default;
-  binary_node_t& operator=(binary_node_t&& other)      = default;
+  binary_node_t&
+  operator=(const binary_node_t& other) {
+    delete_child(direction::right);
+    delete_child(direction::left);
+
+    if (other.has_left()) {
+      _left   = new binary_node_t();
+      *_left  = other.left();
+    }
+    if (other.has_right()) {
+      _right  = new binary_node_t();
+      *_right = other.right();
+    }
+
+    base_type_t::_node = other._node;
+    return *this;
+  } // LCOV_EXCL_LINE
+
+  binary_node_t&
+  operator=(binary_node_t&& other) {
+    delete_child(direction::right);
+    delete_child(direction::left);
+    _left  = other._left;
+    _right = other._right;
+    other._left = other._right = nullptr;
+    base_type_t::_node = std::move(other._node);
+    return *this;
+  } // LCOV_EXCL_LINE
 
   virtual
   ~binary_node_t() {

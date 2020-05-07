@@ -17,5 +17,6 @@ private slots:
   void test_max_length_of_subarray_of_sum_zero();
   void test_max_length_of_subarray_of_sum_non_zero();
   void test_max_sum_of_subarray();
+  void test_max_length_sum_full_array();
 };
 

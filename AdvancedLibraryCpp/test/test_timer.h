@@ -25,6 +25,8 @@ public:
 
   const std::vector<double>& intervals();
 
+  using advanced::concurrency::base_timer_t::notify;
+
 protected:
 
   virtual int on_interval() override;
@@ -51,5 +53,7 @@ private slots:
   void test_timer_should_have_on_stop_method_called_after_stop();
   void test_timer_should_have_on_start_method_called_after_start();
   void test_set_interval();
+  void test_is_running();
+  void test_notify();
 };
 

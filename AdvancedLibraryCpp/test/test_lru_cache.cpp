@@ -506,10 +506,112 @@ test_for_range_loop() {
   populate(input.rbegin(), input.rend(), cache);
 
   auto it{ input.begin() };
+  const auto& cache_ref{ cache };
   for (const auto& location : cache) {
     QCOMPARE(location, *it);
     it++;
   }
+
+  auto cit{ input.cbegin() };
+  for (const auto& location : cache_ref) {
+    QCOMPARE(location, *cit);
+    cit++;
+  }
+
+  for (auto it = cache.rbegin(); it != cache.rend(); it++) { }
+}
+
+void TestLRUCache::
+test_remove_element_from_cache() {
+  const std::vector<std::string> input {
+    "alabama", "new york", "washington", "illinois", "california",
+    "texas", "new mexico"
+  };
+
+  cache_t<std::string> cache;
+  populate(input.rbegin(), input.rend(), cache);
+
+  cache.remove("texas");
+  QVERIFY(!cache.contains("texas"));
+
+  auto it{ input.begin() };
+  for (const auto& location : cache) {
+    QCOMPARE(location, *it);
+    it++;
+    if (it != input.end() && *it == "texas") {
+      it++;
+    }
+  }
+
+  for (const auto& location : input) {
+    cache.remove(location).remove(location);
+  }
+}
+
+void TestLRUCache::
+test_move_copy() {
+  const std::vector<std::string> input {
+    "alabama", "new york", "washington", "illinois", "california",
+    "texas", "new mexico"
+  };
+
+  {
+    cache_t<std::string> cache, copied, moved;
+    populate(input.rbegin(), input.rend(), cache);
+    copied = cache;
+    moved  = std::move(cache);
+
+    QVERIFY(cache.empty());
+    auto it { copied.begin() };
+    auto mit { moved.begin() };
+    for (const auto& location : input) {
+      QCOMPARE(location, *it);
+      QCOMPARE(location, *mit);
+      it++;
+      mit++;
+    }
+  }
+  {
+    cache_t<std::string> cache;
+    populate(input.rbegin(), input.rend(), cache);
+    cache_t<std::string> copied{ cache };
+    cache_t<std::string> moved{ std::move(cache) };
+    QVERIFY(cache.empty());
+    auto it { copied.begin() };
+    auto mit { moved.begin() };
+    for (const auto& location : input) {
+      QCOMPARE(location, *it);
+      QCOMPARE(location, *mit);
+      it++;
+      mit++;
+    }
+  }
+}
+
+void TestLRUCache::
+test_cache_as_pointers() {
+  std::unique_ptr<cache_t<long>> cache_ptr = std::make_unique<cache_t<long>>();
+  const std::list<long> input {
+    34l, 3l, 5l, 67l, -345l, 9230797509l, -28394834l
+  };
+
+  cache_t<long>& cache { *cache_ptr};
+  // insert in reverse order:
+  populate(input.rbegin(), input.rend(), cache);
+  QCOMPARE(cache.values(), input);
+}
+
+void TestLRUCache::
+test_clear() {
+  const std::list<long> input {
+    34l, 3l, 5l, 67l, -345l, 9230797509l, -28394834l
+  };
+  cache_t<long> cache;
+
+  // insert in reverse order:
+  populate(input.rbegin(), input.rend(), cache);
+  cache.clear();
+  QVERIFY(cache.empty());
 }
 
 namespace test {

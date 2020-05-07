@@ -56,5 +56,6 @@ private slots:
   void test_exist_code();
   void test_is_running();
   void test_thread_ids_should_be_different();
+  void test_as_pointer();
 };
 

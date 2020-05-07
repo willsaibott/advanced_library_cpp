@@ -188,3 +188,75 @@ test_non_valid_sequences() {
     }
   }
 }
+
+void TestMissingElements::
+test_find_missing_on_first() {
+  {
+    std::vector<int> numbers_vector { 3, 4, 5, 6, 7,  8, 9, 10, 11, 12, 13, 14, 15 };
+    const int expected{ 2 };
+    auto res = find_missing_arithmetic_in_sorted(numbers_vector.begin(),
+                                               numbers_vector.end(),
+                                               1,
+                                               2);
+
+    QVERIFY(res.first);
+    QCOMPARE(res.second, expected);
+  }
+
+  {
+    std::vector<double> geometric_progression { 3.0, 9.0, 27.0, 81.0, 243.0, 729.0, 2187.0 };
+    auto res2 = find_missing_geometric_in_sorted(geometric_progression.begin(),
+                                               geometric_progression.end(),
+                                               3.0,
+                                               1.0);
+
+    QVERIFY(res2.first);
+    QCOMPARE(res2.second, 1.0);
+  }
+
+  {
+    std::vector<int>   numbers_vector { 3, 9, 27, 81, 243, 729, 2187 };
+    const int expected{ 1 };
+    auto res = find_missing_geometric_in_sorted(numbers_vector.begin(),
+                                                numbers_vector.end(),
+                                                3,
+                                                1);
+
+    QVERIFY(res.first);
+    QCOMPARE(res.second, expected);
+  }
+}
+
+void TestMissingElements::
+test_find_missing_on_invalid_sequences() {
+  {
+    std::vector<int> numbers_vector { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+
+    QVERIFY_EXCEPTION_THROWN(
+      find_missing_arithmetic_in_sorted(numbers_vector.begin(),
+                                        numbers_vector.end(),
+                                        1,
+                                        1),
+      invalid_sequence_t);
+  }
+  {
+    std::vector<double> geometric_progression { 3.0, 9.0, 27.0, 81.0, 243.0, 729.0, 2187.0 };
+
+    QVERIFY_EXCEPTION_THROWN(
+          find_missing_geometric_in_sorted(geometric_progression.begin(),
+                                           geometric_progression.end(),
+                                           3.0,
+                                           12.0),
+          invalid_sequence_t);
+  }
+
+  {
+    std::vector<int> numbers_vector { 3, 9, 27, 81, 243, 729, 2187 };
+    QVERIFY_EXCEPTION_THROWN(
+          find_missing_geometric_in_sorted(numbers_vector.begin(),
+                                           numbers_vector.end(),
+                                           3,
+                                           12),
+          invalid_sequence_t);
+  }
+}

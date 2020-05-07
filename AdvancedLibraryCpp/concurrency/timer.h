@@ -146,7 +146,7 @@ protected:
         timestamp.reset();
       }
     }
-    on_stop();
+    _on_stop();
     return return_value;
   } // LCOV_EXCL_LINE
 

@@ -22,5 +22,7 @@ private slots:
   void test_find_not_common_element();
   void test_find_not_repeated_element();
   void test_non_valid_sequences();
+  void test_find_missing_on_first();
+  void test_find_missing_on_invalid_sequences();
 };
 

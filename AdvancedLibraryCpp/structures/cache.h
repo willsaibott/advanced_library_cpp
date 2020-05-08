@@ -66,8 +66,8 @@ class cache_t {
     auto it{ _map.find(key )};
     if (it != _map.end()) {
       output.first  = true;
-      output.second = it->second;
       move_to_front(it->second);
+      output.second = _list.begin();
     }
     return output;
   }
@@ -297,7 +297,7 @@ class cache_t {
    */
   virtual void
   on_discard(const value_t& value)
-  {  }
+  { (void)value; }
 
   private:
 

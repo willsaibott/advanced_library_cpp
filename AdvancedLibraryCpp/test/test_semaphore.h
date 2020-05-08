@@ -18,11 +18,11 @@ public:
     join();
   }
 
-  semaphore_allocator_t() = default;
+  semaphore_allocator_t() = delete;
   semaphore_allocator_t(const semaphore_allocator_t& other) : semaphore{ other.semaphore } {}
-  semaphore_allocator_t(semaphore_allocator_t&& )     = default;
-  inline semaphore_allocator_t& operator=(const semaphore_allocator_t&) = default;
-  inline semaphore_allocator_t& operator=(semaphore_allocator_t&& )     = default;
+  semaphore_allocator_t(semaphore_allocator_t&& )     = delete;
+  inline semaphore_allocator_t& operator=(const semaphore_allocator_t&) = delete;
+  inline semaphore_allocator_t& operator=(semaphore_allocator_t&& )     = delete;
   semaphore_allocator_t(advanced::concurrency::semaphore_t* semaphore);
 
   void

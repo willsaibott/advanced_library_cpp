@@ -46,10 +46,11 @@ private slots:
   void test_initializing_root_on_constructor();
   void test_children_nodes_should_throw_null_node_exception_when_they_are_null();
   void test_set_value();
-  void test_set_parent();
   void test_has_parent();
   void test_parent_getter();
   void test_null_root_should_throw_exception();
   void test_move_copy();
+  void test_clear();
+  void test_as_pointer();
 };
 

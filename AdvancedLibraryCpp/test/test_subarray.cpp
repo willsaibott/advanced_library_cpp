@@ -58,7 +58,7 @@ test_max_sum_of_subarray() {
 void TestSubArray::
 test_max_length_sum_full_array() {
   const std::vector<double> input { -2.0, -2.0, 4.0, -2.0, -2.0, 2.0, 1.0, 1.0 };
-  const long expected { 8 };
+  const size_t expected { 8 };
   const auto actual =
       subarray_t<long>::max_length_of_sum(input.begin(), input.end(), 0.0);
   QCOMPARE(actual, expected);

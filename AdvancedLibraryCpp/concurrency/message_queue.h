@@ -218,6 +218,9 @@ class message_queue_t : public thread_t {
 
   private:
 
+  /**
+   * @brief clear it will clear the entire queue
+   */
   void
   clear() {
     while (!_queue.empty()) { _queue.pop(); }

@@ -365,17 +365,6 @@ test_set_value() {
 }
 
 void TestBinaryTree::
-test_set_parent() {
-  binary_tree_t<test::structures::mock_node_value> tribe(
-        test::structures::mock_node_value{ 42, 100.0, "Tsunade" });
-  auto& hokkage{ tribe.root() };
-  hokkage.set_parent(&hokkage);
-  QCOMPARE(hokkage.parent().get().name,    hokkage.get().name);
-  QCOMPARE(hokkage.parent().get().int_v,   hokkage.get().int_v);
-  QCOMPARE(hokkage.parent().get().float_v, hokkage.get().float_v);
-}
-
-void TestBinaryTree::
 test_has_parent() {
   binary_tree_t<std::string> tree;
   auto& root{ tree.add_root("grandpa").root() };
@@ -388,11 +377,6 @@ test_has_parent() {
   auto& mother{ root.right() };
   QVERIFY(father.has_parent());
   QVERIFY(mother.has_parent());
-
-  mother.set_parent(nullptr);
-  father.set_parent(nullptr);
-  QVERIFY(!mother.has_parent());
-  QVERIFY(!father.has_parent());
 }
 
 void TestBinaryTree::
@@ -461,4 +445,28 @@ test_move_copy() {
   QCOMPARE(hokkage1.right().get().name,    hokkage2.right().get().name);
   QCOMPARE(hokkage1.right().get().int_v,   hokkage2.right().get().int_v);
   QCOMPARE(hokkage1.right().get().float_v, hokkage2.right().get().float_v);
+}
+
+void TestBinaryTree::
+test_clear() {
+  binary_tree_t<test::structures::mock_node_value> tribe(
+        test::structures::mock_node_value{ 42, 100.0, "Tsunade" });
+  auto& hokkage{ tribe.root() };
+  hokkage.add_left({ 21, 50.0, "Kakashi" });
+  hokkage.add_right({ 12, 5000.0, "Naruto" });
+
+  tribe.clear();
+  QVERIFY_EXCEPTION_THROWN(tribe.root(), null_node_exception_t);
+}
+
+void TestBinaryTree::
+test_as_pointer() {
+  std::unique_ptr<base_tree_t> pointer{
+    new binary_tree_t<test::structures::mock_node_value>(
+          test::structures::mock_node_value( 42, 100.0, "Tsunade" )) };
+  binary_tree_t<test::structures::mock_node_value>& tribe(
+    dynamic_cast<binary_tree_t<test::structures::mock_node_value>&>(*pointer));
+  auto& hokkage{ tribe.root() };
+  hokkage.add_left({ 21, 50.0, "Kakashi" });
+  hokkage.add_right({ 12, 5000.0, "Naruto" });
 }

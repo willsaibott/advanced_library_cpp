@@ -18,8 +18,13 @@ public:
 template <class T, class node_type>
 class tree_t;
 
+class inode_t {
+public:
+  virtual ~inode_t(){ }
+};
+
 template <class T, class node_type_t>
-class base_node_t {
+class base_node_t : public inode_t {
 public:
 
 
@@ -40,15 +45,6 @@ public:
   set_value(T&& node) {
     _node = std::move(node);
   }
-
-  /**
-   * @brief set_parent    set node witch is the parent of this
-   * @param parent
-   */
-  virtual void
-  set_parent(node_type_t* parent) {
-    _parent = parent;
-  } // LCOV_EXCL_LINE
 
   virtual bool
   delete_child(size_t child) = 0;
@@ -122,14 +118,16 @@ public:
   /**
    * @brief operator * returns the value
    */
-  inline T&operator*() {
+  inline T&
+  operator*() {
     return _node;
   }
 
   /**
    * @brief operator * returns the value in a const context
    */
-  inline const T&operator*() const {
+  inline const T&
+  operator*() const {
     return _node;
   }
 
@@ -145,7 +143,8 @@ public:
    * @brief get returns a const reference to value in a const context
    * @return
    */
-  inline const T&get() const {
+  inline const T&
+  get() const {
     return _node;
   }
 
@@ -194,9 +193,17 @@ public:
 
   protected:
 
+  /**
+   * @brief set_parent    set node witch is the parent of this
+   * @param parent
+   */
+  virtual void
+  set_parent(node_type_t* parent) {
+    _parent = parent;
+  } // LCOV_EXCL_LINE
+
   node_type_t* _parent{ nullptr };
   T            _node;
-
 };
 
 template <class T, size_t max_node_size = 2>
@@ -215,7 +222,7 @@ public:
   add_child(const T& child) {
     bool ok{ _children.size() < max_node_size };
     if (ok) {
-        _children.push_back(new node_type_t{ child, this });
+      _children.push_back(new node_type_t{ child, this });
     }
     return ok;
   }
@@ -318,12 +325,23 @@ public:
   }
 
   protected:
-
   std::list<node_type_t*> _children;
 };
 
+class base_tree_t {
+public:
+  base_tree_t()                                       = default;
+  base_tree_t(const base_tree_t& other)               = default;
+  base_tree_t(base_tree_t&& other) noexcept           = default;
+  base_tree_t&operator=(const base_tree_t& other)     = default;
+  base_tree_t&operator=(base_tree_t&& other) noexcept = default;
+  virtual ~base_tree_t(){ }
+  virtual void clear()          = 0;
+  virtual bool has_root() const = 0;
+};
+
 template <class T, class node_type>
-class tree_t {
+class tree_t : public base_tree_t {
 public:
 
   virtual
@@ -337,14 +355,6 @@ public:
    */
   tree_t(const T& root) : _root{ new node_type{ root } }
   {  }
-
-  /**
-   * initializes the root element with the arguments on it
-   */
-  template <typename ...Args>
-  tree_t(Args&&...args) :
-    _root{ new node_type(std::forward<Args>(args)...) }
-  { }
 
   /**
    * @brief root  it gets the root of three
@@ -391,6 +401,11 @@ public:
     *this = std::move(other);
   }
 
+  /**
+   * @brief operator = copy all elements in root
+   * @param other
+   * @return reference to this
+   */
   tree_t&
   operator=(const tree_t& other) {
     if (other.has_root()) {
@@ -398,8 +413,13 @@ public:
       *_root = other.root();
     }
     return *this;
-  }
+  } // LCOV_EXCL_LINE
 
+  /**
+   * @brief operator = transfer the ownership of root pointer
+   * @param other
+   * @return reference to this
+   */
   tree_t&
   operator=(tree_t&& other) {
     _root = other._root;
@@ -418,10 +438,15 @@ public:
     return *this;
   } // LCOV_EXCL_LINE
 
-  inline bool
-  has_root() const {
+  inline virtual bool
+  has_root() const override {
     return _root;
   } // LCOV_EXCL_LINE
+
+  virtual void
+  clear() override {
+    delete_root();
+  }
 
   protected:
 

@@ -453,7 +453,6 @@ test_remove_one_element() {
   // Testing removing one keys:
   for (const auto& elem : input) {
     bool contains { inserted.count(elem) > 0u };
-    bool ok{tree.contains(elem) == contains};
     QCOMPARE(tree.contains(elem), contains);
     QVERIFY(tree.insert(elem));
     inserted.insert(elem);
@@ -461,7 +460,6 @@ test_remove_one_element() {
     QCOMPARE(tree.size(), inserted.size());
   }
 
-  int ii = 0;
   for (const auto& elem : input) {
     QCOMPARE(tree.contains(elem), true);
     QVERIFY(tree.remove(elem));
@@ -470,14 +468,11 @@ test_remove_one_element() {
     if (it != inserted.end()) {
       inserted.erase(it);
     }
-    ii++;
+
     if (inserted.size()) {
-      bool ok { test_node(tree.root()) == tree.size() };
       QCOMPARE(test_node(tree.root()), tree.size());
     }
 
-    bool contains { inserted.count(elem) > 0u };
-    bool ok{tree.contains(elem) == contains};
     QCOMPARE(tree.contains(elem), inserted.count(elem) > 0u);
     QCOMPARE(tree.size(), inserted.size());
   }
@@ -504,7 +499,6 @@ test_remove_all_elements() {
   // Testing removing all keys:
   for (const auto& elem : input) {
     bool contains { inserted.count(elem) > 0u };
-    bool ok {tree.contains(elem)==contains };
     QCOMPARE(tree.contains(elem), contains);
     QVERIFY(tree.insert(elem));
     inserted.insert(elem);
@@ -513,7 +507,6 @@ test_remove_all_elements() {
   }
 
   for (const auto& elem : input) {
-    bool ok {tree.contains(elem)==(   inserted.count(elem) > 0u) };
     QCOMPARE(tree.contains(elem),   inserted.count(elem) > 0u);
     QCOMPARE(tree.remove_all(elem), inserted.count(elem));
     inserted.erase(elem);

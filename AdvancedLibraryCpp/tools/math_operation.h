@@ -32,7 +32,7 @@ struct sum_t {
   template<typename ...Args>
   inline T operator() (const T& lhs, const T& rhs, Args&&... other) const {
     return lhs + this->operator()(rhs, std::forward<Args>(other)...);
-  }
+  } // LCOV_EXCL_LINE
 };
 
 /**
@@ -100,9 +100,9 @@ struct minimum_t {
   }
 
   template<typename ...Args>
-  T operator()(Args&&... args) const {
-    return std::min( std::initializer_list<T>{ std::forward<Args>(args)... });
-  }
+  T operator()(const T& lhs, const T& rhs, Args&&... args) const {
+    return std::min( std::initializer_list<T>{ lhs, rhs, std::forward<Args>(args)... });
+  } // LCOV_EXCL_LINE
 };
 
 /**
@@ -118,9 +118,9 @@ struct maximum_t {
   }
 
   template<typename ...Args>
-  T operator()(Args&&... args) const {
-    return std::max( std::initializer_list<T>{ std::forward<Args>(args)... });
-  }
+  T operator()(const T& lhs, const T& rhs, Args&&... args) const {
+    return std::max( std::initializer_list<T>{ lhs, rhs, std::forward<Args>(args)... });
+  } // LCOV_EXCL_LINE
 };
 
 }

@@ -17,6 +17,7 @@
 #include "test_binary_tree.h"
 #include "test_avl_tree.h"
 #include "test_timestamp.h"
+#include "test_math.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -253,6 +254,19 @@ int main(int argc, char** argv) {
       std::cerr << "Test " << suite << " returned: " << status << std::endl;
     }
   }
+  if (true)
+  {
+    TESTLIB_SELFCOVERAGE_START(TestMath)
+        QCoreApplication app(argc, argv);
+    app.setAttribute(Qt::AA_Use96Dpi, true);
+    TestMath test;
+    QTEST_SET_MAIN_SOURCE_PATH \
+        QString path { "results/" + test.objectName() + ".xml" };
+    auto status = QTest::qExec(&test, argc, argv);
+    if (status) {
+      std::cerr << "Test " << suite << " returned: " << status << std::endl;
+    }
+  }
 
 // Qt does not recognize under macros:  :(
 //  DECLARE_TEST(TestRandom)
@@ -291,6 +305,7 @@ main(int argc, char** argv) {
     new TestBinaryTree(),
     new TestAVLTree(),
     new TestTimestamp(),
+    new TestMath()
   };
 
   fs::create_directory("results");

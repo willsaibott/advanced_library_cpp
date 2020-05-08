@@ -24,6 +24,15 @@ struct sum_t {
   inline T operator() (const T& lhs, const T& rhs) const {
     return lhs + rhs;
   }
+
+  inline T operator()(const T& value) const {
+    return value;
+  }
+
+  template<typename ...Args>
+  inline T operator() (const T& lhs, const T& rhs, Args&&... other) const {
+    return lhs + this->operator()(rhs, std::forward<Args>(other)...);
+  }
 };
 
 /**
@@ -50,6 +59,15 @@ struct multiplication_t {
   inline T operator() (const T& lhs, const T& rhs) const {
     return lhs * rhs;
   }
+
+  inline T operator()(const T& value) const {
+    return value;
+  }
+
+  template<typename ...Args>
+  inline T operator() (const T& lhs, const T& rhs, Args&&... other) const {
+    return lhs * this->operator()(rhs, std::forward<Args>(other)...);
+  }
 };
 
 /**
@@ -62,6 +80,10 @@ struct division_t {
   using reverse_t = multiplication_t<T>;
   inline T operator() (const T& lhs, const T& rhs) const {
     return lhs / rhs;
+  }
+
+  inline T operator()(const T& value) const {
+    return value;
   }
 };
 
@@ -76,6 +98,11 @@ struct minimum_t {
   inline T operator() (const T& lhs, const T& rhs) const {
     return std::min(lhs, rhs);
   }
+
+  template<typename ...Args>
+  T operator()(Args&&... args) const {
+    return std::min( std::initializer_list<T>{ std::forward<Args>(args)... });
+  }
 };
 
 /**
@@ -88,6 +115,11 @@ struct maximum_t {
   using reverse_t = minimum_t<T>;
   inline T operator() (const T& lhs, const T& rhs) const {
     return std::max(lhs, rhs);
+  }
+
+  template<typename ...Args>
+  T operator()(Args&&... args) const {
+    return std::max( std::initializer_list<T>{ std::forward<Args>(args)... });
   }
 };
 

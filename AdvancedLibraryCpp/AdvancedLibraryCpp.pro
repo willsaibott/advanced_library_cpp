@@ -35,7 +35,6 @@ HEADERS += \
         structures/tree.h \
         structures/union_find.h \
         structures/union_set.h \
-        test/test_timestamp.h \
         tools/delimiters.h \
         tools/divisors.h \
         tools/enum_factory.h \
@@ -74,6 +73,8 @@ testmode {
                 test/test_union_find.h \
                 test/test_union_set.h \
                 test/test_wrapper_thread.h \
+                test/test_math.h \
+                test/test_timestamp.h \
                 test/test_lockable.h
     SOURCES  += \
                 test/test_memory.cpp \
@@ -98,6 +99,8 @@ testmode {
                 test/test_union_set.cpp \
                 test/test_wrapper_thread.cpp \
                 test/test_avl_tree.cpp \
+                test/test_math.cpp \
+                test/test_timestamp.cpp \
                 test/tests.cpp
 
     TEMPLATE  = app
@@ -144,5 +147,3 @@ QMAKE_LFLAGS += --coverage
 QMAKE_POST_LINK = rm -f build/$$DESTINATION_PATH/.obj/*gcda
 !build_pass:message(cleaning: rm -f "$$OBJECTS_DIR/*gcda")
 
-SOURCES += \
-  test/test_timestamp.cpp

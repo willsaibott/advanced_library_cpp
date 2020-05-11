@@ -70,6 +70,8 @@ public:
     return counter;
   }
 
+  advanced::structures::avl_tree_t<int> get_test_tree();
+
 private slots:
 
   void test_has_left();
@@ -93,5 +95,12 @@ private slots:
   void test_clear();
   void test_custom_structure();
   void test_as_pointer();
+  void test_trasversal_in_order();
+  void test_trasversal_pre_order();
+  void test_trasversal_pos_order();
+  void test_max_allowed_children();
+  void test_bfs();
+  void test_dfs();
+  void test_search_value();
 };
 

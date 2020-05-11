@@ -29,6 +29,8 @@ class TestBinaryTree : public QObject
 public:
   explicit TestBinaryTree(QObject *parent = nullptr);
 
+  advanced::structures::binary_tree_t<int> get_test_tree();
+
 private slots:
 
   void test_add_left();
@@ -52,5 +54,12 @@ private slots:
   void test_move_copy();
   void test_clear();
   void test_as_pointer();
+  void test_trasversal_in_order();
+  void test_trasversal_pre_order();
+  void test_trasversal_pos_order();
+  void test_max_allowed_children();
+  void test_bfs();
+  void test_dfs();
+  void test_search_value();
 };
 

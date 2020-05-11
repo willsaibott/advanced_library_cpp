@@ -18,6 +18,7 @@
 #include "test_avl_tree.h"
 #include "test_timestamp.h"
 #include "test_math.h"
+#include "test_tree.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -243,6 +244,19 @@ int main(int argc, char** argv) {
   }
   if (true)
   {
+    TESTLIB_SELFCOVERAGE_START(TestTree)
+        QCoreApplication app(argc, argv);
+    app.setAttribute(Qt::AA_Use96Dpi, true);
+    TestTree test;
+    QTEST_SET_MAIN_SOURCE_PATH \
+        QString path { "results/" + test.objectName() + ".xml" };
+    auto status = QTest::qExec(&test, argc, argv);
+    if (status) {
+      std::cerr << "Test " << suite << " returned: " << status << std::endl;
+    }
+  }
+  if (true)
+  {
     TESTLIB_SELFCOVERAGE_START(TestTimestamp)
         QCoreApplication app(argc, argv);
     app.setAttribute(Qt::AA_Use96Dpi, true);
@@ -304,6 +318,7 @@ main(int argc, char** argv) {
     new TestTimer(),
     new TestBinaryTree(),
     new TestAVLTree(),
+    new TestTree(),
     new TestTimestamp(),
     new TestMath()
   };

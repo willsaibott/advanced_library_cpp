@@ -128,6 +128,7 @@ include(qmake-target-platform.pri)
 include(qmake-destination-path.pri)
 
 DISTFILES += \
+  ../config \
   qmake-destination-path.pri
 
 DESTDIR     = $$PWD/binaries/$$DESTINATION_PATH

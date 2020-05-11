@@ -9,6 +9,24 @@ TestAVLTree(QObject *parent) : QObject(parent) {
   QObject::setObjectName("TestAVLTree");
 }
 
+advanced::structures::avl_tree_t<int> TestAVLTree::
+get_test_tree() {
+  avl_tree_t<int> tree;
+  tree.insert(7);
+  tree.insert(4);
+  tree.insert(10);
+  tree.insert(2);
+  tree.insert(5);
+  tree.insert(8);
+  tree.insert(12);
+  tree.insert(1);
+  tree.insert(3);
+  tree.insert(6);
+  tree.insert(9);
+  tree.insert(11);
+  return tree;
+}
+
 void TestAVLTree::
 test_has_left() {
   avl_tree_t<long> tree;
@@ -631,4 +649,171 @@ test_as_pointer() {
     inserted.erase(elem);
     QCOMPARE(tree.contains(elem), false);
   }
+}
+
+void TestAVLTree::
+test_trasversal_in_order() {
+  const std::vector<int> expected { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+  const avl_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.in_order(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+  total =
+      tree_ref.in_order(
+        [&visited](const binary_node_t<int>& node) {
+          visited.push_back(node.get());
+          return false;
+        });
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestAVLTree::
+test_trasversal_pre_order() {
+  const std::vector<int> expected { 7, 4, 2, 1, 3, 5, 6, 10, 8, 9, 12, 11 };
+  avl_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.pre_order(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+  total =
+      tree_ref.pre_order(
+        [&visited](const binary_node_t<int>& node) {
+          visited.push_back(node.get());
+          return false;
+        });
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestAVLTree::
+test_trasversal_pos_order() {
+  const std::vector<int> expected { 1, 3, 2, 6, 5, 4, 9, 8, 11, 12, 10, 7 };
+  avl_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.pos_order(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+  total =
+      tree_ref.pos_order(
+        [&visited](const binary_node_t<int>& node) {
+          visited.push_back(node.get());
+          return false;
+        });
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestAVLTree::
+test_max_allowed_children() {
+  avl_tree_t<int> tree = get_test_tree();
+  size_t total =
+    tree.pre_order([](const binary_node_t<int>& node) {
+      return node.max_allowed_children() != 2u;
+    });
+  QCOMPARE(total, 12u);
+}
+
+void TestAVLTree::
+test_bfs() {
+  const std::vector<int> expected { 7, 4, 10, 2, 5, 8, 12, 1, 3, 6, 9, 11 };
+  avl_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.breadth_first_search(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+  total =
+      tree_ref.breadth_first_search(
+        [&visited](const binary_node_t<int>& node) {
+          visited.push_back(node.get());
+          return false;
+        });
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestAVLTree::
+test_dfs() {
+  const std::vector<int> expected { 7, 4, 2, 1, 3, 5, 6, 10, 8, 9, 12, 11 };
+  avl_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.depth_first_search(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+  total =
+      tree_ref.depth_first_search(
+        [&visited](const binary_node_t<int>& node) {
+          visited.push_back(node.get());
+          return false;
+        });
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestAVLTree::
+test_search_value() {
+  avl_tree_t<int> tree = get_test_tree();
+  size_t steps{ 0u };
+
+  steps = tree.in_order([](const auto& node) { return *node == 7; });
+  QCOMPARE(steps, 7u);
+  steps = tree.pre_order([](const auto& node) { return *node == 7; });
+  QCOMPARE(steps, 1u);
+  steps = tree.pos_order([](const auto& node) { return *node == 10; });
+  QCOMPARE(steps, 12u);
+  steps = tree.breadth_first_search([](const auto& node) { return *node == 8; });
+  QCOMPARE(steps, 6u);
+  steps = tree.depth_first_search([](const auto& node) { return *node == 12; });
+  QCOMPARE(steps, 11u);
 }

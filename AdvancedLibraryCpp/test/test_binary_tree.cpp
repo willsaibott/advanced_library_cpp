@@ -7,6 +7,23 @@ TestBinaryTree(QObject *parent) : QObject(parent) {
   QObject::setObjectName("TestBinaryTree");
 }
 
+advanced::structures::binary_tree_t<int> TestBinaryTree::
+get_test_tree() {
+  binary_tree_t<int> tree(7);
+  tree.root().add_left(4);
+  tree.root().left().add_left(2);
+  tree.root().left().add_right(5);
+  tree.root().left().left().add_left(1);
+  tree.root().left().left().add_right(3);
+  tree.root().left().right().add_right(6);
+  tree.root().add_right(10);
+  tree.root().right().add_left(8);
+  tree.root().right().left().add_right(9);
+  tree.root().right().add_right(12);
+  tree.root().right().right().add_left(11);
+  return tree;
+}
+
 void TestBinaryTree::
 test_add_left() {
   binary_tree_t<std::string> tree;
@@ -445,6 +462,26 @@ test_move_copy() {
   QCOMPARE(hokkage1.right().get().name,    hokkage2.right().get().name);
   QCOMPARE(hokkage1.right().get().int_v,   hokkage2.right().get().int_v);
   QCOMPARE(hokkage1.right().get().float_v, hokkage2.right().get().float_v);
+
+  binary_node_t<test::structures::mock_node_value>
+      node{ test::structures::mock_node_value{ 0, 0.0, "null" }, nullptr };
+  node.add_left({1, 2.0, "bomb"});
+  node.add_right({2, 2.0, "bomb2"});
+  hokkage2 = std::move(node);
+  QCOMPARE(hokkage2.get().int_v,    0);
+  QCOMPARE(hokkage2.get().float_v,  0.0);
+  QCOMPARE(hokkage2.get().name,     "null");
+  QCOMPARE(node.get().int_v,    0);
+  QCOMPARE(node.get().float_v,  0.0);
+  QCOMPARE(node.get().name,     "");
+  QVERIFY(!node.has_left());
+  QVERIFY(!node.has_right());
+  QVERIFY(hokkage2.has_left());
+  QVERIFY(hokkage2.has_right());
+  QVERIFY(hokkage2.left().has_parent());
+  QVERIFY(hokkage2.right().has_parent());
+  QCOMPARE(hokkage2.left().parent().get().name,  "null");
+  QCOMPARE(hokkage2.right().parent().get().name, "null");
 }
 
 void TestBinaryTree::
@@ -469,4 +506,189 @@ test_as_pointer() {
   auto& hokkage{ tribe.root() };
   hokkage.add_left({ 21, 50.0, "Kakashi" });
   hokkage.add_right({ 12, 5000.0, "Naruto" });
+}
+
+void TestBinaryTree::
+test_trasversal_in_order() {
+  const std::vector<int> expected { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+  std::vector<int> visited;
+  binary_tree_t<int> tree = get_test_tree();
+
+  size_t total =
+    tree.in_order(
+      [&visited](binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+
+  total =
+    tree_ref.in_order(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestBinaryTree::
+test_trasversal_pre_order() {
+  const std::vector<int> expected { 7, 4, 2, 1, 3, 5, 6, 10, 8, 9, 12, 11 };
+  binary_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.pre_order(
+      [&visited](binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+
+  total =
+    tree_ref.pre_order(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestBinaryTree::
+test_trasversal_pos_order() {
+  const std::vector<int> expected { 1, 3, 2, 6, 5, 4, 9, 8, 11, 12, 10, 7 };
+  binary_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.pos_order(
+      [&visited](binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+
+  total =
+    tree_ref.pos_order(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestBinaryTree::
+test_max_allowed_children() {
+  binary_tree_t<int>         tree1(0);
+  binary_tree_t<std::string> tree2("Dump");
+  binary_tree_t<test::structures::mock_node_value> tree3({0, 0.0, "bob"});
+
+  QCOMPARE(tree1.root().max_allowed_children(), 2u);
+  QCOMPARE(tree1.root().max_allowed_children(), 2u);
+  QCOMPARE(tree1.root().max_allowed_children(), 2u);
+
+  binary_tree_t<int> tree4 = get_test_tree();
+  size_t total =
+    tree4.pre_order([](const binary_node_t<int>& node) {
+      return node.max_allowed_children() != 2u;
+    });
+  QCOMPARE(total, 12u);
+}
+
+void TestBinaryTree::
+test_bfs() {
+  const std::vector<int> expected { 7, 4, 10, 2, 5, 8, 12, 1, 3, 6, 9, 11 };
+  binary_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.breadth_first_search(
+      [&visited](binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+
+  total =
+    tree_ref.breadth_first_search(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestBinaryTree::
+test_dfs() {
+  const std::vector<int> expected { 7, 4, 2, 1, 3, 5, 6, 10, 8, 9, 12, 11 };
+  binary_tree_t<int> tree = get_test_tree();
+  std::vector<int> visited;
+
+  size_t total =
+    tree.depth_first_search(
+      [&visited](binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+
+  const auto& tree_ref{ tree };
+  visited.clear();
+
+  total =
+    tree_ref.depth_first_search(
+      [&visited](const binary_node_t<int>& node) {
+        visited.push_back(node.get());
+        return false;
+      });
+
+  QCOMPARE(total,   expected.size());
+  QCOMPARE(visited, expected);
+}
+
+void TestBinaryTree::
+test_search_value() {
+  binary_tree_t<int> tree = get_test_tree();
+  size_t steps{ 0u };
+
+  steps = tree.in_order([](auto& node) { return *node == 7; });
+  QCOMPARE(steps, 7u);
+  steps = tree.pre_order([](auto& node) { return *node == 7; });
+  QCOMPARE(steps, 1u);
+  steps = tree.pos_order([](auto& node) { return *node == 10; });
+  QCOMPARE(steps, 12u);
+  steps = tree.breadth_first_search([](auto& node) { return *node == 8; });
+  QCOMPARE(steps, 6u);
+  steps = tree.depth_first_search([](auto& node) { return *node == 12; });
+  QCOMPARE(steps, 11u);
 }

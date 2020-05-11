@@ -1,5 +1,7 @@
 #pragma once
+#include <algorithm>
 #include "tree.h"
+
 
 namespace advanced {
 namespace structures {
@@ -19,10 +21,15 @@ template <class T>
 class binary_node_t : public base_node_t<T, binary_node_t<T>> {
   friend class binary_tree_t<T>;
   friend class avl_tree_t<T>;
+  friend class tree_t<T, binary_node_t<T>>;
 
 public:
-  using node_type_t = binary_node_t<T>;
-  using base_type_t = base_node_t<T, binary_node_t<T>>;
+  using node_type_t            = binary_node_t<T>;
+  using base_type_t            = base_node_t<T, binary_node_t<T>>;
+  using iterator               = typename base_type_t::iterator;
+  using const_iterator         = typename base_type_t::const_iterator;
+  using reverse_iterator       = typename base_type_t::reverse_iterator;
+  using const_reverse_iterator = typename base_type_t::const_reverse_iterator;
 
   enum class direction {
     left  = 0,
@@ -127,7 +134,6 @@ public:
     *this = std::move(other);
   }
 
-
   /**
    * Contructor that forward anything to base_node constructor
    */
@@ -147,8 +153,7 @@ public:
    */
   binary_node_t&
   operator=(const binary_node_t& other) {
-    delete_child(direction::right);
-    delete_child(direction::left);
+    clear();
 
     if (other.has_left()) {
       _left   = new binary_node_t();
@@ -175,8 +180,7 @@ public:
    */
   binary_node_t&
   operator=(binary_node_t&& other) {
-    delete_child(direction::right);
-    delete_child(direction::left);
+    clear();
     _left  = other._left;
     _right = other._right;
     other._left = other._right = nullptr;
@@ -198,6 +202,11 @@ public:
    */
   virtual
   ~binary_node_t() {
+    clear();
+  }
+
+  virtual void
+  clear() final override {
     delete_child(direction::left);
     delete_child(direction::right);
   }
@@ -289,13 +298,142 @@ public:
     } // LCOV_EXCL_LINE
   }
 
+  /**
+   * @brief max_allowed_children
+   * @return
+   */
+  virtual size_t
+  max_allowed_children() const override {
+    return 2u;
+  }
+
+  /**
+   * @brief in_order recursive in-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  in_order(const std::function<bool (node_type_t&)> &func) override {
+    size_t visited{ 1u };
+    if (has_left()) {
+      visited += left().in_order(func);
+    }
+    if (!func(*this)) {
+      if (has_right()) {
+        visited += right().in_order(func);
+      }
+    }
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief pre_order recursive pre-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  pre_order(const std::function<bool (node_type_t&)> &func) override {
+    size_t visited{ 1u };
+    if (!func(*this)) {
+      if (has_left()) {
+        visited += left().pre_order(func);
+      }
+      if (has_right()) {
+        visited += right().pre_order(func);
+      }
+    }
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief pos_order recursive pos-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  pos_order(const std::function<bool (node_type_t&)> &func) override {
+    size_t visited{ 1u };
+    if (has_left()) {
+      visited += left().pos_order(func);
+    }
+    if (has_right()) {
+      visited += right().pos_order(func);
+    }
+    func(*this);
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief in_order recursive in-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  in_order(const std::function<bool(const node_type_t&)> &func) const override {
+    size_t visited{ 1u };
+    if (has_left()) {
+      visited += left().in_order(func);
+    }
+    if (!func(*this)) {
+      if (has_right()) {
+        visited += right().in_order(func);
+      }
+    }
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief pre_order recursive pre-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  pre_order(const std::function<bool (const node_type_t&)> &func) const override {
+    size_t visited{ 1u };
+    if (!func(*this)) {
+      if (has_left()) {
+        visited += left().pre_order(func);
+      }
+      if (has_right()) {
+        visited += right().pre_order(func);
+      }
+    }
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief pos_order recursive pos-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  pos_order(const std::function<bool (const node_type_t&)> &func) const override {
+    size_t visited{ 1u };
+    if (has_left()) {
+      visited += left().pos_order(func);
+    }
+    if (has_right()) {
+      visited += right().pos_order(func);
+    }
+    func(*this);
+    return visited;
+  } // LCOV_EXCL_LINE
+
+
 protected:
-  long long         _height{ 1 };
-  binary_node_t<T>* _left{ nullptr };
-  binary_node_t<T>* _right{ nullptr };
+  /**
+   * @brief children  get children as a vector
+   * @return
+   */
+  std::vector<node_type_t*>
+  children() const {
+    return { _left, _right };
+  } // LCOV_EXCL_LINE
 
+  size_t                    _height  { 1u };
+  binary_node_t<T>*         _left    { nullptr };
+  binary_node_t<T>*         _right   { nullptr };
   using base_type_t::swap;
-
 };
 
 /**
@@ -304,15 +442,13 @@ protected:
 template <class T>
 class binary_tree_t : public tree_t<T, binary_node_t<T>>{
 public:
-  using node_type_t = binary_node_t<T>;
-  using base_type_t = tree_t<T, node_type_t>;
+  using node_type_t    = binary_node_t<T>;
+  using base_type_t    = tree_t<T, node_type_t>;
 
   binary_tree_t(const T& root) : tree_t<T, node_type_t> (root)
   { }
 
   binary_tree_t() = default;
-
-protected:
 };
 
 /**
@@ -321,8 +457,8 @@ protected:
 template <class T>
 class avl_tree_t : public tree_t<T, binary_node_t<T>>{
 public:
-  using node_type_t = binary_node_t<T>;
-  using base_type_t = tree_t<T, node_type_t>;
+  using node_type_t     = binary_node_t<T>;
+  using base_type_t     = tree_t<T, node_type_t>;
 
   /**
    * @brief avl_tree_t  default constructor
@@ -476,9 +612,112 @@ public:
     _number_of_elements = 0;
   }
 
-  protected:
+  /**
+   * @brief in_order recursive in order
+   * @param func
+   * @return
+   */
+  size_t
+  in_order(const std::function<bool(const node_type_t&)>& func) const {
+    return base_type_t::in_order(func);
+  }
 
-  using base_type_t::add_root;
+  /**
+   * @brief in_order recursive in order
+   * @param func
+   * @return
+   */
+  size_t
+  in_order(const std::function<bool(const node_type_t&)>& func) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.in_order(func);
+  }
+
+  /**
+   * @brief pre_order recursive pre order
+   * @param func
+   * @return
+   */
+  size_t
+  pre_order(const std::function<bool(const node_type_t&)>& func) const {
+    return base_type_t::pre_order(func);
+  }
+
+  /**
+   * @brief pre_order recursive pre order
+   * @param func
+   * @return
+   */
+  size_t
+  pre_order(const std::function<bool(const node_type_t&)>& func) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.pre_order(func);
+  }
+
+  /**
+   * @brief pos_order recursive pos order
+   * @param func
+   * @return
+   */
+  size_t
+  pos_order(const std::function<bool(const node_type_t&)>& func) const {
+    return base_type_t::pos_order(func);
+  }
+
+  /**
+   * @brief pos_order recursive pos order
+   * @param func
+   * @return
+   */
+  size_t
+  pos_order(const std::function<bool(const node_type_t&)>& func) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.pos_order(func);
+  }
+
+  /**
+   * @brief breadth_first_search iterative breadth first search
+   * @param func
+   * @return
+   */
+  size_t
+  breadth_first_search(const std::function<bool(const node_type_t&)>& pred) const {
+    return base_type_t::breadth_first_search(pred);
+  }
+
+  /**
+   * @brief breadth_first_search iterative breadth first search
+   * @param func
+   * @return
+   */
+  size_t
+  breadth_first_search(const std::function<bool(const node_type_t&)>& pred) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.breadth_first_search(pred);
+  }
+
+  /**
+   * @brief depth_first_search iterative depth first search
+   * @param func
+   * @return
+   */
+  size_t
+  depth_first_search(const std::function<bool(const node_type_t&)>& pred) const {
+    return base_type_t::depth_first_search(pred);
+  }
+
+  /**
+   * @brief depth_first_search iterative depth first search
+   * @param func
+   * @return
+   */
+  size_t
+  depth_first_search(const std::function<bool(const node_type_t&)>& pred) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.depth_first_search(pred);
+  }
+
+  protected:
 
   /**
    * @brief contains  searches the tree recursively for a value
@@ -690,9 +929,9 @@ public:
    * @param node
    * @return height of a node
    */
-  inline static long long
+  inline static size_t
   height(const node_type_t* node) {
-    return node ? node->_height : 0;
+    return node ? node->_height : 0u;
   }
 
   /**
@@ -780,6 +1019,10 @@ public:
   }
 
 private:
+
+  // LCOV_EXCL_START
+  using base_type_t::add_root;
+  // LCOV_EXCL_STOP
 
   bool    _allow_duplicates{ false };
   size_t  _number_of_elements{ 0 };

@@ -74,7 +74,8 @@ jobs:
         $Qt5_Dir/bin/qmake AdvancedLibraryCpp/AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=debug CONFIG+=qml_debug CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
         make clean -j8
         make -j8
-        valgrind --child-silent-after-fork=yes --smc-check=stack --tool=memcheck --gen-suppressions=all --track-origins=yes --leak-check=summary --num-callers=25 'AdvancedLibraryCpp/binaries/linux/clang/x64/debug/tests'
+        valgrind --child-silent-after-fork=yes --smc-check=stack --tool=memcheck --gen-suppressions=all --track-origins=yes --leak-check=full --num-callers=25 --error-exitcode=1 'AdvancedLibraryCpp/binaries/linux/clang/x64/debug/tests' 
+
         
         
       

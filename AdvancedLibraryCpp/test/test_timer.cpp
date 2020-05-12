@@ -185,8 +185,7 @@ test_is_running() {
 
 void TestTimer::
 test_notify() {
-  const size_t interval_ms{ 100 };
-  test::concurrency::moc_timer timer{ interval_ms };
+  test::concurrency::moc_timer timer;
   QVERIFY(!timer.is_running());
   timer.start();
   QTest::qWait(10);

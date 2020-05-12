@@ -1,5 +1,7 @@
 #pragma once
+#include <algorithm>
 #include "tree.h"
+
 
 namespace advanced {
 namespace structures {
@@ -9,16 +11,25 @@ namespace structures {
 template <class T>
 class binary_tree_t;
 
+template <class T>
+class avl_tree_t;
+
 /**
  * @brief templated binary node to be inserted into the bianry tree object
  */
 template <class T>
 class binary_node_t : public base_node_t<T, binary_node_t<T>> {
   friend class binary_tree_t<T>;
+  friend class avl_tree_t<T>;
+  friend class tree_t<T, binary_node_t<T>>;
 
 public:
-  using node_type_t = binary_node_t<T>;
-  using base_type_t = base_node_t<T, binary_node_t<T>>;
+  using node_type_t            = binary_node_t<T>;
+  using base_type_t            = base_node_t<T, binary_node_t<T>>;
+  using iterator               = typename base_type_t::iterator;
+  using const_iterator         = typename base_type_t::const_iterator;
+  using reverse_iterator       = typename base_type_t::reverse_iterator;
+  using const_reverse_iterator = typename base_type_t::const_reverse_iterator;
 
   enum class direction {
     left  = 0,
@@ -123,7 +134,6 @@ public:
     *this = std::move(other);
   }
 
-
   /**
    * Contructor that forward anything to base_node constructor
    */
@@ -132,37 +142,71 @@ public:
       : base_node_t<T, binary_node_t<T> > (std::forward<Args>(args)...)
   { }
 
+  /**
+   * @brief operator = copy assingment operator creates a new empty node and copy
+   * the contents from the other node to it, also creates and copy recursively
+   * the left and right children if they exist in the other
+   * It performs a full copy, so expensive, but can be used as prototype
+   * from Prototype Design pattern.
+   * @param other node to be copied
+   * @return reference to this
+   */
   binary_node_t&
   operator=(const binary_node_t& other) {
-    delete_child(direction::right);
-    delete_child(direction::left);
+    clear();
 
     if (other.has_left()) {
       _left   = new binary_node_t();
       *_left  = other.left();
+      _left->set_parent(this);
     }
     if (other.has_right()) {
       _right  = new binary_node_t();
       *_right = other.right();
+      _right->set_parent(this);
     }
 
     base_type_t::_node = other._node;
     return *this;
   } // LCOV_EXCL_LINE
 
+  /**
+   * @brief operator = move operator is extremely fast, it just transfer the
+   * ownership of the pointer from other to this
+   * @note the other will lost reference to any child or parent.
+   *
+   * @param other object to be moved
+   * @return reference to this
+   */
   binary_node_t&
   operator=(binary_node_t&& other) {
-    delete_child(direction::right);
-    delete_child(direction::left);
+    clear();
     _left  = other._left;
     _right = other._right;
     other._left = other._right = nullptr;
+    other.set_parent(nullptr);
+
+    if (has_left()) {
+      _left->set_parent(this);
+    }
+    if (has_right()) {
+      _right->set_parent(this);
+    }
+
     base_type_t::_node = std::move(other._node);
     return *this;
   } // LCOV_EXCL_LINE
 
+  /**
+   * @brief ~binary_node_t deletes all children if they exist
+   */
   virtual
   ~binary_node_t() {
+    clear();
+  }
+
+  virtual void
+  clear() final override {
     delete_child(direction::left);
     delete_child(direction::right);
   }
@@ -193,7 +237,7 @@ public:
   add_right(const T& child) {
     bool ok{ !_right };
     if (ok) {
-      _right = new binary_node_t{ child, this };
+      _right  = new binary_node_t{ child, this };
     }
     return ok;
   } // LCOV_EXCL_LINE
@@ -254,13 +298,142 @@ public:
     } // LCOV_EXCL_LINE
   }
 
+  /**
+   * @brief max_allowed_children
+   * @return
+   */
+  virtual size_t
+  max_allowed_children() const override {
+    return 2u;
+  }
+
+  /**
+   * @brief in_order recursive in-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  in_order(const std::function<bool (node_type_t&)> &func) override {
+    size_t visited{ 1u };
+    if (has_left()) {
+      visited += left().in_order(func);
+    }
+    if (!func(*this)) {
+      if (has_right()) {
+        visited += right().in_order(func);
+      }
+    }
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief pre_order recursive pre-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  pre_order(const std::function<bool (node_type_t&)> &func) override {
+    size_t visited{ 1u };
+    if (!func(*this)) {
+      if (has_left()) {
+        visited += left().pre_order(func);
+      }
+      if (has_right()) {
+        visited += right().pre_order(func);
+      }
+    }
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief pos_order recursive pos-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  pos_order(const std::function<bool (node_type_t&)> &func) override {
+    size_t visited{ 1u };
+    if (has_left()) {
+      visited += left().pos_order(func);
+    }
+    if (has_right()) {
+      visited += right().pos_order(func);
+    }
+    func(*this);
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief in_order recursive in-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  in_order(const std::function<bool(const node_type_t&)> &func) const override {
+    size_t visited{ 1u };
+    if (has_left()) {
+      visited += left().in_order(func);
+    }
+    if (!func(*this)) {
+      if (has_right()) {
+        visited += right().in_order(func);
+      }
+    }
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief pre_order recursive pre-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  pre_order(const std::function<bool (const node_type_t&)> &func) const override {
+    size_t visited{ 1u };
+    if (!func(*this)) {
+      if (has_left()) {
+        visited += left().pre_order(func);
+      }
+      if (has_right()) {
+        visited += right().pre_order(func);
+      }
+    }
+    return visited;
+  } // LCOV_EXCL_LINE
+
+  /**
+   * @brief pos_order recursive pos-order trasversal
+   * @param func
+   * @return number of nodes
+   */
+  virtual size_t
+  pos_order(const std::function<bool (const node_type_t&)> &func) const override {
+    size_t visited{ 1u };
+    if (has_left()) {
+      visited += left().pos_order(func);
+    }
+    if (has_right()) {
+      visited += right().pos_order(func);
+    }
+    func(*this);
+    return visited;
+  } // LCOV_EXCL_LINE
+
+
 protected:
-  long long         _height{ 0 };
-  binary_node_t<T>* _left{ nullptr };
-  binary_node_t<T>* _right{ nullptr };
+  /**
+   * @brief children  get children as a vector
+   * @return
+   */
+  std::vector<node_type_t*>
+  children() const {
+    return { _left, _right };
+  } // LCOV_EXCL_LINE
 
+  size_t                    _height  { 1u };
+  binary_node_t<T>*         _left    { nullptr };
+  binary_node_t<T>*         _right   { nullptr };
   using base_type_t::swap;
-
 };
 
 /**
@@ -269,18 +442,13 @@ protected:
 template <class T>
 class binary_tree_t : public tree_t<T, binary_node_t<T>>{
 public:
+  using node_type_t    = binary_node_t<T>;
+  using base_type_t    = tree_t<T, node_type_t>;
 
-  template <typename ...Args>
-  binary_tree_t(Args...args)
-    :  tree_t<T, binary_node_t<T> > (std::forward<Args>(args)...)
-  { }
-
-  binary_tree_t(const T& root) : tree_t<T, binary_node_t<T> > (root)
+  binary_tree_t(const T& root) : tree_t<T, node_type_t> (root)
   { }
 
   binary_tree_t() = default;
-
-protected:
 };
 
 /**
@@ -289,22 +457,18 @@ protected:
 template <class T>
 class avl_tree_t : public tree_t<T, binary_node_t<T>>{
 public:
-  using node_type_t = binary_node_t<T>;
-
-  /**
-   * @brief It forwars anything to binary_node custom constructor
-   */
-  template <typename ...Args>
-  avl_tree_t(Args&&...args)
-    :  tree_t<T, binary_node_t<T> > (std::forward<Args>(args)...)
-  { }
+  using node_type_t     = binary_node_t<T>;
+  using base_type_t     = tree_t<T, node_type_t>;
 
   /**
    * @brief avl_tree_t  default constructor
    * @param root
    */
-  avl_tree_t(const T& root) : tree_t<T, binary_node_t<T> > (root)
-  { }
+  avl_tree_t(const T& root) {
+    insert(root);
+  }
+
+  avl_tree_t() = default;
 
   /**
    * @brief insert inserts a non existent previously value in the tree
@@ -314,23 +478,369 @@ public:
    */
   bool
   insert(const T& value) {
-    auto it = insert(this->_root, value);
-    return it != nullptr;
+    bool inserted{ true };
+    insert(this->_root, value, inserted);
+    return inserted;
   }
 
   /**
-   * @brief remove  it removes a value from the tree
+   * @brief remove  it removes one value from the tree
    * @param value
    * @return   If the tree contained the value
    */
   bool
   remove(const T& value) {
-    auto it = remove(this->_root, value);
-    return it != nullptr;
+    bool removed{ false };
+    remove(this->_root, value, removed);
+    return removed;
+  }
+
+  /**
+   * @brief remove_all it removes all elemnts that matches the value
+   * @param value
+   * @return the count of removed elemnts
+   * @note   complexity is O(repeated_values * log(n))
+   */
+  size_t
+  remove_all(const T& value) {
+    size_t removed_elements{ 0 };
+    while (remove(value)) {
+      removed_elements++;
+    }
+    return removed_elements;
+  }
+
+  /**
+   * @brief height gets the height of the three
+   * @return
+   */
+  inline size_t
+  height() const {
+    return height(this->_root);
+  }
+
+  /**
+   * @brief left_most
+   * @return the left most node
+   */
+  const node_type_t&
+  left_most() const {
+    return *avl_tree_t::leftmost(this->_root);
+  }
+
+  /**
+   * @brief right_most
+   * @return the right most node
+   */
+  const node_type_t&
+  right_most() const {
+    return *avl_tree_t::rightmost(this->_root);
+  }
+
+  /**
+   * @brief contains   it searches the tree recursively for a value
+   * @param value      key value to be found
+   * @return           whether the value is in the tree or not
+   */
+  bool
+  contains(const T& value) const {
+    return this->has_root() ? contains(this->root(), value) : false;
+  }
+
+  /**
+   * @brief root tree root
+   * @return tree root reference
+   */
+  const node_type_t&
+  root() const {
+    return base_type_t::root();
+  }
+
+  /**
+   * @brief root tree root
+   * @return tree root reference
+   */
+  const node_type_t&
+  root() {
+    return base_type_t::root();
+  }
+
+  /**
+   * @brief enable_duplicates It makes the AVL tree allow multiple equal entries
+   * @default not allowed
+   */
+  void
+  enable_duplicates() {
+    _allow_duplicates = true;
+  }
+
+  /**
+   * @brief disable_duplicates It makes the AVL tree disallow multiple equal
+   * entries
+   * @default not allowed
+   */
+  void
+  disable_duplicates() {
+    _allow_duplicates = false;
+  }
+
+  /**
+   * @brief size number of elements in tree
+   * @return number of elements in tree
+   */
+  size_t
+  size() const {
+    return _number_of_elements;
+  }
+
+  /**
+   * @brief is_multiple_keys_allowed whether this class allowes or not
+   * multiple keys
+   * @return whether this class allowes or not multiple keys
+   */
+  inline bool
+  is_multiple_keys_allowed() const {
+    return _allow_duplicates;
+  }
+
+  /**
+   * @brief clear  it removes all elements from the tree
+   */
+  virtual void
+  clear() override {
+    base_type_t::clear();
+    _number_of_elements = 0;
+  }
+
+  /**
+   * @brief in_order recursive in order
+   * @param func
+   * @return
+   */
+  size_t
+  in_order(const std::function<bool(const node_type_t&)>& func) const {
+    return base_type_t::in_order(func);
+  }
+
+  /**
+   * @brief in_order recursive in order
+   * @param func
+   * @return
+   */
+  size_t
+  in_order(const std::function<bool(const node_type_t&)>& func) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.in_order(func);
+  }
+
+  /**
+   * @brief pre_order recursive pre order
+   * @param func
+   * @return
+   */
+  size_t
+  pre_order(const std::function<bool(const node_type_t&)>& func) const {
+    return base_type_t::pre_order(func);
+  }
+
+  /**
+   * @brief pre_order recursive pre order
+   * @param func
+   * @return
+   */
+  size_t
+  pre_order(const std::function<bool(const node_type_t&)>& func) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.pre_order(func);
+  }
+
+  /**
+   * @brief pos_order recursive pos order
+   * @param func
+   * @return
+   */
+  size_t
+  pos_order(const std::function<bool(const node_type_t&)>& func) const {
+    return base_type_t::pos_order(func);
+  }
+
+  /**
+   * @brief pos_order recursive pos order
+   * @param func
+   * @return
+   */
+  size_t
+  pos_order(const std::function<bool(const node_type_t&)>& func) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.pos_order(func);
+  }
+
+  /**
+   * @brief breadth_first_search iterative breadth first search
+   * @param func
+   * @return
+   */
+  size_t
+  breadth_first_search(const std::function<bool(const node_type_t&)>& pred) const {
+    return base_type_t::breadth_first_search(pred);
+  }
+
+  /**
+   * @brief breadth_first_search iterative breadth first search
+   * @param func
+   * @return
+   */
+  size_t
+  breadth_first_search(const std::function<bool(const node_type_t&)>& pred) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.breadth_first_search(pred);
+  }
+
+  /**
+   * @brief depth_first_search iterative depth first search
+   * @param func
+   * @return
+   */
+  size_t
+  depth_first_search(const std::function<bool(const node_type_t&)>& pred) const {
+    return base_type_t::depth_first_search(pred);
+  }
+
+  /**
+   * @brief depth_first_search iterative depth first search
+   * @param func
+   * @return
+   */
+  size_t
+  depth_first_search(const std::function<bool(const node_type_t&)>& pred) {
+    const base_type_t& ref{ static_cast<base_type_t&>(*this) };
+    return ref.depth_first_search(pred);
   }
 
   protected:
-  avl_tree_t() = default;
+
+  /**
+   * @brief contains  searches the tree recursively for a value
+   * @param node      current node
+   * @param value     value
+   * @return          whether the value is in the tree or not
+   */
+  bool
+  contains(const node_type_t& node, const T&value) const {
+    bool found{ false };
+    if (value < *node) {
+      if (node.has_left()) {
+        found = contains(node.left(), value);
+      }
+    }
+    else if (value > *node) {
+      if (node.has_right()) {
+        found = contains(node.right(), value);
+      }
+    }
+    else {
+      found = value == *node;
+    }
+    return found;
+  }
+
+  /**
+   * @brief insert_left  inserts in the left side of the node
+   * @param node
+   * @param value
+   * @param inserted
+   */
+  void
+  insert_left(node_type_t*& node, const T& value, bool& inserted) {
+    if (node->has_left()) {
+      insert(node->_left, value, inserted);
+    }
+    else {
+      node->add_left(value);
+      _number_of_elements++;
+    }
+  }
+
+  /**
+   * @brief insert_right  it inserts in the right side of the node
+   * @param node
+   * @param value
+   * @param inserted
+   */
+  void
+  insert_right(node_type_t*& node, const T& value, bool& inserted) {
+    if (node->has_right()) {
+      insert(node->_right, value, inserted);
+    }
+    else {
+      node->add_right(value);
+      _number_of_elements++;
+    }
+  }
+
+  /**
+   * @brief rotate_if_needed   Rotate the tree if the children nodes are not
+   * balanced
+   * @param father[in|out] node that will be the parent after the rotation
+   * @param value          value inserted
+   */
+  void
+  rotate_if_needed(node_type_t*& father, const T& value) {
+    father->_height =
+      std::max(height(father->_left), height(father->_right)) + 1;
+
+    if (height(father->_left) - height(father->_right) == 2) {
+      if (value < father->_left->get()) {
+        father = rotate_right(father);
+      }
+      else {
+        father = double_rotate_right(father);
+      }
+    }
+    else if (height(father->_right) - height(father->_left) == 2) {
+      if (value > father->_right->get()) {
+        father = rotate_left(father);
+      }
+      else {
+        father = double_rotate_left(father);
+      }
+    }
+  }
+
+  /**
+   * @brief rotate_on_remove  Rotates the AVL tree when an element was removed
+   * from the tree
+   * @param father the node will be the father after rotation
+   * @param value
+   */
+  void
+  rotate_on_remove_if_needed(node_type_t*& father) {
+    father->_height = std::max(height(father->_left), height(father->_right)) + 1;
+
+    // If node is unbalanced
+    // If left node is deleted, right case
+    if (height(father->_left) - height(father->_right) == 2) {
+      // right right case
+      if (height(father->_left->_left) - height(father->_left->_right) == 1) {
+        father = rotate_right(father);
+      }
+      // right left case
+      else {
+        father = double_rotate_right(father);
+      }
+    }
+    // If right node is deleted, left case
+    else if (height(father->_right) - height(father->_left) == 2) {
+      // left left case
+      if (height(father->_right->_right) - height(father->_right->_left) == 1) {
+        father = rotate_left(father);
+      }
+      // left right case
+      else {
+        father = double_rotate_left(father);
+      }
+    }
+  }
 
   /**
    * @brief insert  inserts the value into the tree, make necessary rotations
@@ -339,56 +849,35 @@ public:
    * @param value
    * @return
    */
-  node_type_t*
-  insert(node_type_t* node, const T& value) {
-    node_type_t* result{ nullptr };
+  void
+  insert(node_type_t*& node, const T& value, bool& inserted) {
+    node_type_t* father{ node };
     if (node) {
-      if (value < *node) {
-        if (node->has_left()) {
-          result = insert(node->_left, value);
-        }
-        else {
-          node->add_left(value);
-          result = node->_left;
-        }
-
-        if(height(result->_left) - height(result->_right) == 2) {
-            if(value < result->_left->get()) {
-              result = rotate_right(result);
-            }
-            else {
-              result = double_rotate_right(result);
-            }
-        }
+      if (value < node->get()) {
+        insert_left(node, value, inserted);
       }
-      else if (value > *node) {
-        if (node->has_right()) {
-          result = insert(node->_right, value);
-        }
-        else {
-          node->add_right(value);
-          result = true;
-        }
-
-        if(height(result->_right) - height(result->_left) == 2) {
-            if(value > result->_right->get()) {
-              result = rotate_left(result);
-            }
-            else {
-              result = double_rotate_left(result);
-            }
-        }
+      else if (value > node->get()) {
+        insert_right(node, value, inserted);
+      }
+      else if (_allow_duplicates) {
+        insert_right(node, value, inserted);
       }
       else {
-        // result is nullptr, no equal value can be inserted in the BST
+        inserted = false;
       }
     }
-
-    if (result) {
-      result->_height =
-          std::max(height(result->left), height(result->right)) + 1;
+    // I'm root:
+    else {
+      add_root(value);
+      _number_of_elements++;
+      father = this->_root;
     }
-    return result;
+
+    if (inserted) {
+      rotate_if_needed(father, value);
+    }
+
+    node = father;
   }
 
   /**
@@ -398,66 +887,41 @@ public:
    * @param value
    * @return
    */
-  node_type_t*
-  remove(node_type_t* node, const T& value) {
-    node_type_t* temp{ nullptr };
+  void
+  remove(node_type_t*& node, const T& value, bool& removed) {
+    node_type_t* temp{ node };
 
     if (node) {
       // Searching for element
       if (value < node->get()) {
-        node->_left = remove(value, node->_left);
+        remove(node->_left, value, removed);
       }
       else if (value > node->get()) {
-        node->_right = remove(value, node->_right);
+        remove(node->_right, value, removed);
       }
       // Element found With 2 children
-      else if (node->_left && node->_right) {
-         temp = leftmost(node->_right);
-         node->set_value(*temp);
-         node->_right = remove(*temp, node->_right);
+      else if (node->children_count() == 2u) {
+        temp = leftmost(node->_right);
+        node->set_value(*temp);
+        remove(node->_right, *temp, removed);
       }
       // With one or zero child
       else {
         temp = node;
-        if(!node->_left) {
-          node = node->_right;
-        }
-        else if(!node->_right) {
-          node = node->_left;
+        node = node->has_left() ? node->_left : node->_right;
+        if (node) {
+          temp->_left = temp->_right = nullptr;
+          node->set_parent(temp->_parent);
         }
         delete temp;
+        removed = true;
+        _number_of_elements--;
       }
 
       if (node) {
-        node->height = std::max(height(node->_left), height(node->_right)) + 1;
-
-        // If node is unbalanced
-        // If left node is deleted, right case
-        if (height(node->_left) - height(node->_right) == 2) {
-          // right right case
-          if (height(node->_left->_left) - height(node->_left->_right) == 1) {
-            node = rotate_left(node);
-          }
-          // right left case
-          else {
-            node = double_rotate_left(node);
-          }
-        }
-        // If right node is deleted, left case
-        else if (height(node->_right) - height(node->_left) == 2) {
-           // left left case
-           if (height(node->_right->_right) - height(node->_right->_left) == 1) {
-             node = rotate_right(node);
-           }
-           // left right case
-           else {
-             node = double_rotate_right(node);
-           }
-        }
+        rotate_on_remove_if_needed(node);
       }
     }
-
-    return node;
   }
 
   /**
@@ -465,9 +929,9 @@ public:
    * @param node
    * @return height of a node
    */
-  inline static long long
-  height(node_type_t* node) {
-    return node ? node->_height : 0;
+  inline static size_t
+  height(const node_type_t* node) {
+    return node ? node->_height : 0u;
   }
 
   /**
@@ -476,13 +940,18 @@ public:
    * @return
    */
   inline static node_type_t*
-  rotate_right(node_type_t* & other) {
-    auto tmp{ other->_left };
-    other->_left   = tmp->_right;
-    tmp->_right    = other;
-    other->_height = std::max(height(other->_left), height(other->_right)) + 1;
-    tmp->_height   = std::max(height(tmp->_left),   other->_height)        + 1;
-    return tmp;
+  rotate_right(node_type_t* other) {
+    node_type_t* head{ other };
+    if (other && other->has_left()) {
+      head = other->_left;
+      other->_left   = head->_right;
+      head->_right   = other;
+      head->set_parent(other->_parent);
+      other->set_parent(head);
+      other->_height = std::max(height(other->_left), height(other->_right)) + 1;
+      head->_height  = std::max(height(head->_left),  other->_height)        + 1;
+    }
+    return head;
   }
 
   /**
@@ -491,12 +960,18 @@ public:
    * @return
    */
   inline static node_type_t*
-  rotate_left(node_type_t* & other) {
-    auto tmp{ other->_right };
-    other->_right  = tmp->left;
-    tmp->_left     = other;
-    other->_height = std::max(height(other->_left),  height(other->_right)) + 1;
-    tmp->_height   = std::max(height(other->_right), other->_height)        + 1;
+  rotate_left(node_type_t* other) {
+    node_type_t* head{ other };
+    if (other && other->has_right()) {
+      head = other->_right;
+      other->_right  = head->_left;
+      head->_left     = other;
+      head->set_parent(other->_parent);
+      other->set_parent(head);
+      other->_height = std::max(height(other->_left), height(other->_right)) + 1;
+      head->_height  = std::max(height(head->_right), other->_height)        + 1;
+    }
+    return head;
   }
 
   /**
@@ -506,7 +981,7 @@ public:
    * @return
    */
   inline static node_type_t*
-  double_rotate_left(node_type_t* &node) {
+  double_rotate_left(node_type_t* node) {
     node->_right = rotate_right(node->_right);
     return rotate_left(node);
   }
@@ -518,7 +993,7 @@ public:
    * @return
    */
   inline static node_type_t*
-  double_rotate_right(node_type_t* &node) {
+  double_rotate_right(node_type_t* node) {
     node->_left = rotate_left(node->_left);
     return rotate_right(node);
   }
@@ -540,8 +1015,17 @@ public:
    */
   inline static node_type_t*
   rightmost(node_type_t* node) {
-    return node->has_right() ? leftmost(node->_right) : node;
+    return node->has_right() ? rightmost(node->_right) : node;
   }
+
+private:
+
+  // LCOV_EXCL_START
+  using base_type_t::add_root;
+  // LCOV_EXCL_STOP
+
+  bool    _allow_duplicates{ false };
+  size_t  _number_of_elements{ 0 };
 };
 
 }

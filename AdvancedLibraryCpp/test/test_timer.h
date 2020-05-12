@@ -17,7 +17,8 @@ public:
     safe_delete();
   }
 
-  moc_timer(size_t timeout_ms = 100)
+  moc_timer() {}
+  moc_timer(size_t timeout_ms)
     : advanced::concurrency::base_timer_t{ timeout_ms } { }
 
   std::atomic_bool  on_start_called{ false };

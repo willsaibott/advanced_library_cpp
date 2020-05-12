@@ -1,7 +1,8 @@
-EXCLUDE_PATTERNS = */test/* \
-                   */test_* \
+EXCLUDE_PATTERNS = */test/*.h \
+                   */test_*.h \
                    */moc* \
-                   AdvancedLibraryCpp/build/*
+                   */build/* \
+                   */binaries/*
 OUTPUT_DIRECTORY = docs
 GENERATE_HTML    = yes
 GENERATE_LATEX   = no

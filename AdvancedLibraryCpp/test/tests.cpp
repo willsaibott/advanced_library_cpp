@@ -333,7 +333,7 @@ main(int argc, char** argv) {
       std::cerr << test->objectName().toStdString() << " returned: "
                 << status << "\n";
     }
-//    delete test; forcing memory leak
+    delete test;
   }
 
   Q_UNUSED(argc);

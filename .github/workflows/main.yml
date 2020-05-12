@@ -55,7 +55,7 @@ jobs:
       shell: bash
       run: $Qt5_Dir/bin/qmake AdvancedLibraryCpp/AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
 
-    - name: Make lean 
+    - name: Make clean 
       shell: bash
       run: make clean -j8
       
@@ -67,7 +67,7 @@ jobs:
       shell: bash
       run:  AdvancedLibraryCpp/binaries/linux/clang/x64/release/tests
     
-    - name: Memory Analyser
+    - name: Memory Analyser with valgrind (in debug build)
       shell: bash
       run: |
         sudo apt install valgrind

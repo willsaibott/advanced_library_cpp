@@ -299,9 +299,7 @@ int main(int argc, char** argv) {
 
 int
 main(int argc, char** argv) {
-  Q_UNUSED(argc);
-  Q_UNUSED(argv);
-  int status, final_status{ 0 }, suite{ 0 };
+  int status, final_status{ 0 };
   QVector<QObject*> test_suits {
     new TestLockable(),
     new TestEnum(),
@@ -328,16 +326,17 @@ main(int argc, char** argv) {
 
   for (auto& test : test_suits) {
     QString path { "results/" + test->objectName() + ".xml" };
-    final_status |=
-        status =
-          QTest::qExec(test, QStringList() << " " << "-o" << path << "-xunitxml");
-    suite++;
+    auto args{ QStringList() << " " << "-o" << path << "-xunitxml" };
+    final_status += status = QTest::qExec(test, args);
     if (status) {
-      std::cerr << "Test " << suite << " returned: " << status << std::endl;
+      std::cerr << test->objectName().toStdString() << " returned: "
+                << status << "\n";
     }
     delete test;
   }
 
+  Q_UNUSED(argc);
+  Q_UNUSED(argv);
   return final_status;
 }
 

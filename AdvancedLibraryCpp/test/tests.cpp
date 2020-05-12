@@ -327,13 +327,13 @@ main(int argc, char** argv) {
   for (auto& test : test_suits) {
     QString path { "results/" + test->objectName() + ".xml" };
     auto args{ QStringList() << " " << "-o" << path << "-xunitxml" };
-//    final_status += status = QTest::qExec(test, args);
+    final_status += status = QTest::qExec(test, args);
     final_status = status = 1;
     if (status) {
-      std::cerr << "Test " << test->objectName().toStdString() << " returned: "
-                << status << std::endl;
+      std::cerr << test->objectName().toStdString() << " returned: "
+                << status << "\n";
     }
-    delete test;
+//    delete test; forcing memory leak
   }
 
   Q_UNUSED(argc);

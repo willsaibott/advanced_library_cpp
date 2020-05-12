@@ -53,7 +53,7 @@ jobs:
     # Runs a set of commands using the runners shell
     - name: QMake project
       shell: bash
-      run: $Qt5_Dir/bin/qmake AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
+      run: $Qt5_Dir/bin/qmake AdvancedLibraryCpp/AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
 
     - name: clean 
       shell: bash

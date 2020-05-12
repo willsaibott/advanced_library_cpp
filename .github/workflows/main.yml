@@ -37,7 +37,7 @@ jobs:
       with:
         # Architecture for Windows/Android
         arch: x64
-        version: ${{ QT_VERSION }}
+        version: $env:QT_VERSION
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
         modules: debug_info testlib
         

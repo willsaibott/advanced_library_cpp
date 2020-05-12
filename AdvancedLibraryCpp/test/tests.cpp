@@ -324,18 +324,16 @@ main(int argc, char** argv) {
   fs::create_directory("results");
   system("rm -rf *.gcda");
 
-//  for (auto& test : test_suits) {
-//    QString path { "results/" + test->objectName() + ".xml" };
-//    auto args{ QStringList() << " " << "-o" << path << "-xunitxml" };
-//    final_status += status = QTest::qExec(test, args);
-//    if (status) {
-//      std::cerr << test->objectName().toStdString() << " returned: "
-//                << status << "\n";
-//    }
-//    delete test;
-//  }
-
-  std::string* ptr = new std::string("forced memory leak");
+  for (auto& test : test_suits) {
+    QString path { "results/" + test->objectName() + ".xml" };
+    auto args{ QStringList() << " " << "-o" << path << "-xunitxml" };
+    final_status += status = QTest::qExec(test, args);
+    if (status) {
+      std::cerr << test->objectName().toStdString() << " returned: "
+                << status << "\n";
+    }
+    delete test;
+  }
 
   Q_UNUSED(argc);
   Q_UNUSED(argv);

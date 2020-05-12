@@ -40,7 +40,7 @@ jobs:
       shell: bash
       run: |
         export qt_version=$QT_VERSION
-        export qt_dir_prefix="$qt_version/gcc_64")
+        export qt_dir_prefix="$qt_version/gcc_64"
         ls $GITHUB_WORKSPACE
         ls .
         export qt_dir=Qt$qt_version/$qt_dir_prefix

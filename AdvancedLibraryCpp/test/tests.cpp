@@ -328,7 +328,6 @@ main(int argc, char** argv) {
     QString path { "results/" + test->objectName() + ".xml" };
     auto args{ QStringList() << " " << "-o" << path << "-xunitxml" };
     final_status += status = QTest::qExec(test, args);
-    final_status = status = 1;
     if (status) {
       std::cerr << test->objectName().toStdString() << " returned: "
                 << status << "\n";

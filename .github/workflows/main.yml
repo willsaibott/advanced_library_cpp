@@ -21,10 +21,6 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
     
     - name: Install Qt
       uses: jurplel/install-qt-action@v2.6.2
@@ -34,10 +30,20 @@ jobs:
         # Force a Qt mirror in case the default is not working
         mirror: true
         cached: true
+        
+    - name: Getting paths
+      id:   paths
+      run: |
+        set(qt_version $ENV{QT_VERSION})
+        string(REPLACE "." "" qt_version_dotless "${qt_version}")
+        set(qt_package_name "qt.qt5.${qt_version_dotless}.gcc_64")
+        set(qt_dir_prefix "${qt_version}/gcc_64")
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt5/${qt_dir_prefix}" qt_dir)
+        message("::set-output name=qt_dir::${qt_dir}")
 
     # Runs a set of commands using the runners shell
     - name: QMake project
-      run: qmake AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
+      run: ${{ steps.paths.outputs.qt_dir }}/bin/qmake AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
 
     - name: clean 
       run: make clean -j8

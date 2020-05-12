@@ -25,16 +25,21 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{ runner.os }}-QtCache
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v2.6.2
       with:
         # Architecture for Windows/Android
         arch: x64
         version: $ENV{QT_VERSION}
-        # Force a Qt mirror in case the default is not working
-        mirror: true
-        cached: true
-        dir:    $ENV{GITHUB_WORKSPACE}/Qt
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        modules: debug_info testlib
         
     - name: Getting paths
       id:   paths
@@ -46,6 +51,7 @@ jobs:
         export qt_dir=Qt/Qt$qt_version/$qt_dir_prefix
         echo $qt_dir
         ls  $qt_dir
+        ls $RUNNER_WORKSPACE
 
     # Runs a set of commands using the runners shell
     - name: QMake project

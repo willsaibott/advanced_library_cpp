@@ -34,6 +34,7 @@ jobs:
         # Force a Qt mirror in case the default is not working
         mirror: true
         cached: true
+        dir:    $ENV{GITHUB_WORKSPACE}/Qt
         
     - name: Getting paths
       id:   paths
@@ -43,9 +44,9 @@ jobs:
         export qt_dir_prefix="$qt_version/gcc_64"
         ls $GITHUB_WORKSPACE
         ls .
-        export qt_dir=Qt$qt_version/$qt_dir_prefix
+        export qt_dir=Qt/Qt$qt_version/$qt_dir_prefix
         echo $qt_dir
-        ls  $qt_dir/bin/qmake
+        ls  $qt_dir
 
     # Runs a set of commands using the runners shell
     - name: QMake project

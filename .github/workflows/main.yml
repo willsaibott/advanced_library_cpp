@@ -55,17 +55,28 @@ jobs:
       shell: bash
       run: $Qt5_Dir/bin/qmake AdvancedLibraryCpp/AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
 
-    - name: clean 
+    - name: Make lean 
       shell: bash
       run: make clean -j8
       
-    - name: make
+    - name: Make
       shell: bash
       run: make -j8
       
     - name: Running tests
       shell: bash
       run:  AdvancedLibraryCpp/binaries/linux/clang/x64/release/tests
+    
+    - name: Memory Analyser
+      shell: bash
+      run: |
+        sudo apt install valgrind
+        $Qt5_Dir/bin/qmake AdvancedLibraryCpp/AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=debug CONFIG+=qml_debug CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
+        make clean -j8
+        make -j8
+        valgrind --child-silent-after-fork=yes --smc-check=stack --tool=memcheck --gen-suppressions=all --track-origins=yes --leak-check=summary --num-callers=25 'AdvancedLibraryCpp/binaries/linux/clang/x64/debug/tests'
+        
+        
       
       
       

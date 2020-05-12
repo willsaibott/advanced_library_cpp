@@ -37,25 +37,31 @@ jobs:
         
     - name: Getting paths
       id:   paths
+      shell: bash
       run: |
-        set(qt_version $ENV{QT_VERSION})
-        string(REPLACE "." "" qt_version_dotless "${qt_version}")
-        set(qt_package_name "qt.qt5.${qt_version_dotless}.gcc_64")
-        set(qt_dir_prefix "${qt_version}/gcc_64")
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt5/${qt_dir_prefix}" qt_dir)
-        message("::set-output name=qt_dir::${qt_dir}")
+        export qt_version=$QT_VERSION
+        export qt_dir_prefix="$qt_version/gcc_64")
+        ls $GITHUB_WORKSPACE
+        ls .
+        export qt_dir=Qt$qt_version/$qt_dir_prefix
+        echo $qt_dir
+        ls  $qt_dir/bin/qmake
 
     # Runs a set of commands using the runners shell
     - name: QMake project
-      run: ${{ steps.paths.outputs.qt_dir }}/bin/qmake AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
+      shell: bash
+      run: $qt_dir/bin/qmake AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
 
     - name: clean 
+      shell: bash
       run: make clean -j8
       
     - name: make
+      shell: bash
       run: make -j8
       
     - name: Running tests
+      shell: bash
       run:  AdvancedLibraryCpp/binaries/linux/clang/x64/release/tests
       
       

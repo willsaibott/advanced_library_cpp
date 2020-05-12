@@ -47,11 +47,8 @@ jobs:
       run: |
         export qt_version=$QT_VERSION
         export qt_dir_prefix="$qt_version/gcc_64"
-        sudo find ~ -name "*qmake*" -print
-        export qt_dir=$RUNNER_WORKSPACE/Qt/Qt$qt_version/$qt_dir_prefix
+        export qt_dir=$Qt5_Dir
         echo $qt_dir
-        ls  $qt_dir
-        ls $RUNNER_WORKSPACE
 
     # Runs a set of commands using the runners shell
     - name: QMake project

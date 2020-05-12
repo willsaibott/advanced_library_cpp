@@ -6,9 +6,9 @@ name: Main
 # events but only for the master branch
 on:
   push:
-    branches: [ Testing-CI-CD ]
+    branches: [ master, develop ]
   pull_request:
-    branches: [ Testing-CI-CD ]
+    branches: [ master, develop ]
 
 env:
   QT_VERSION: 5.12.8
@@ -83,7 +83,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         # A prefix to the tag name (default: `v`).
         tag_prefix: version_
-        release_branches: Testing-CI-CD
+        
         
         
       

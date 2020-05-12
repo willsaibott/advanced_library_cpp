@@ -1,0 +1,52 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Main
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    # Runs a single command using the runners shell
+    - name: Run a one-line script
+      run: echo Hello, world!
+    
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.6.2
+      with:
+        # Architecture for Windows/Android
+        arch: x64
+        # Force a Qt mirror in case the default is not working
+        mirror: true
+        cached: true
+
+    # Runs a set of commands using the runners shell
+    - name: QMake project
+      run: qmake AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
+
+    - name: clean 
+      run: make clean -j8
+      
+    - name: make
+      run: make -j8
+      
+    - name: Running tests
+      run:  AdvancedLibraryCpp/binaries/linux/clang/x64/release/tests
+      
+      
+      

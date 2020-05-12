@@ -10,6 +10,9 @@ on:
   pull_request:
     branches: [ Testing-CI-CD ]
 
+env:
+  QT_VERSION: 5.12.8
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -27,6 +30,7 @@ jobs:
       with:
         # Architecture for Windows/Android
         arch: x64
+        version: $ENV{QT_VERSION}
         # Force a Qt mirror in case the default is not working
         mirror: true
         cached: true

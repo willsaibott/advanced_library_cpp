@@ -1,0 +1,91 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Main
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+env:
+  QT_VERSION: 5.12.8
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+    
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{ runner.os }}-QtCache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.6.2
+      with:
+        # Architecture for Windows/Android
+        arch: x64
+        version: 5.12.8
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        modules: debug_info testlib
+        
+    - name: Getting paths
+      id:   paths
+      shell: bash
+      run: |
+        export qt_version=$QT_VERSION
+        export qt_dir_prefix="$qt_version/gcc_64"
+        export qt_dir=$Qt5_Dir
+        echo $qt_dir
+
+    # Runs a set of commands using the runners shell
+    - name: QMake project
+      shell: bash
+      run: $Qt5_Dir/bin/qmake AdvancedLibraryCpp/AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
+
+    - name: Make clean 
+      shell: bash
+      run: make clean -j8
+      
+    - name: Make
+      shell: bash
+      run: make -j8
+      
+    - name: Running tests
+      shell: bash
+      run:  AdvancedLibraryCpp/binaries/linux/clang/x64/release/tests
+    
+    - name: Memory Analyser with valgrind (in debug build)
+      shell: bash
+      run: |
+        sudo apt install valgrind
+        $Qt5_Dir/bin/qmake AdvancedLibraryCpp/AdvancedLibraryCpp.pro -spec linux-clang CONFIG+=debug CONFIG+=qml_debug CONFIG+=force_debug_info CONFIG+=separate_debug_info && /usr/bin/make qmake_all
+        make clean -j8
+        make -j8
+        valgrind --child-silent-after-fork=yes --smc-check=stack --tool=memcheck --gen-suppressions=all --track-origins=yes --leak-check=full --num-callers=25 --error-exitcode=1 'AdvancedLibraryCpp/binaries/linux/clang/x64/debug/tests' 
+
+    - name: Github Tag
+      uses: mathieudutour/github-tag-action@v4.2
+      with:
+        # Required for permission to tag the repo.
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        # A prefix to the tag name (default: `v`).
+        tag_prefix: version_
+        
+        
+        
+      
+      
+      

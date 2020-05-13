@@ -142,7 +142,7 @@ win32:VERSION = 0.1.0.0 # major.minor.patch.build
 else:VERSION  = 0.1.0   # major.minor.patch
 
 # --coverage option is synonym for: -fprofile-arcs -ftest-coverage -lgcov
-QMAKE_CXXFLAGS += --coverage
+QMAKE_CXXFLAGS += --coverage -std=c++17
 QMAKE_LFLAGS += --coverage
 
 QMAKE_POST_LINK = rm -f build/$$DESTINATION_PATH/.obj/*gcda

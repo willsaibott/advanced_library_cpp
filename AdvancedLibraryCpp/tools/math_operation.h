@@ -33,6 +33,18 @@ struct sum_t {
   inline T operator() (const T& lhs, const T& rhs, Args&&... other) const {
     return lhs + this->operator()(rhs, std::forward<Args>(other)...);
   } // LCOV_EXCL_LINE
+
+  template<class A = T>
+  typename std::enable_if<std::is_scalar<A>::value, T>::type
+  null_value() const {
+    return static_cast<T>(0);
+  }
+
+  template<class A = T>
+  typename std::enable_if<std::is_class<A>::value, T>::type
+  null_value() const {
+    return T{};
+  }
 };
 
 /**
@@ -67,6 +79,18 @@ struct multiplication_t {
   template<typename ...Args>
   inline T operator() (const T& lhs, const T& rhs, Args&&... other) const {
     return lhs * this->operator()(rhs, std::forward<Args>(other)...);
+  }
+
+  template<class A = T>
+  typename std::enable_if<std::is_scalar<A>::value, T>::type
+  null_value() const {
+    return static_cast<T>(1);
+  }
+
+  template<class A = T>
+  typename std::enable_if<std::is_class<A>::value, T>::type
+  null_value() const {
+    return T{};
   }
 };
 

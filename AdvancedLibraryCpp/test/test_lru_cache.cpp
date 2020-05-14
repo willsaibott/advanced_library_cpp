@@ -1,5 +1,7 @@
 #include "test_lru_cache.h"
 
+#include <memory>
+
 using advanced::structures::cache_t;
 
 TestLRUCache::

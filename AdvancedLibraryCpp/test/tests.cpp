@@ -20,6 +20,7 @@
 #include "test_math.h"
 #include "test_tree.h"
 #include "test_fenwick_tree.h"
+#include "test_read_csv.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -333,7 +334,8 @@ main(int argc, char** argv) {
     new TestTree(),
     new TestTimestamp(),
     new TestFenwickTree(),
-    new TestMath()
+	new TestMath(),
+	new TestReadCsv()
   };
 
   fs::create_directory("results");

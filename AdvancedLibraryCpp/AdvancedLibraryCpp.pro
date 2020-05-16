@@ -35,12 +35,14 @@ HEADERS += \
         structures/tree.h \
         structures/union_find.h \
         structures/union_set.h \
+        test/test_read_csv.h \
         tools/delimiters.h \
         tools/divisors.h \
         tools/enum_factory.h \
         tools/math_operation.h \
         tools/memory.h \
         tools/random.h \
+        tools/read_csv.h \
         tools/timestamp.h \
         tools/types.h
 
@@ -147,4 +149,10 @@ QMAKE_LFLAGS += --coverage
 
 QMAKE_POST_LINK = rm -f build/$$DESTINATION_PATH/.obj/*gcda
 !build_pass:message(cleaning: rm -f "$$OBJECTS_DIR/*gcda")
+
+SOURCES += \
+    test/test_read_csv.cpp
+
+RESOURCES += \
+    tests.qrc
 

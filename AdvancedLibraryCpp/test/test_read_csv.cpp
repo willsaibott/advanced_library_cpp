@@ -28,21 +28,21 @@ test_read_csv_file() {
 
     QFile file(":/resources/testdata/iris.data");
     if (file.exists()) {
-		file.open(QIODevice::ReadOnly);
-		QDir dir(QDir::currentPath()+"/testdata");
-		if (!dir.exists()){
-		  dir.mkdir( QDir::currentPath()+"/testdata");
-		}
-		QFile testfile(QDir::currentPath()+"/testdata/iris.data");
-		testfile.open(QIODevice::WriteOnly);
-		testfile.write(file.readAll());
-		testfile.close();
-		csv_reader_t f(file_descriptor);
-		csv_file_t r = f.read_csv_file((QDir::currentPath()+"/testdata/iris.data").toStdString());
-		QVERIFY((r->list.front()[0]->get_double() > 5.0) &&
-				(r->list.front()[0]->get_double() < 5.2) &&
-				(r->list.front()[4]->string() == "Iris-setosa"));
+      file.open(QIODevice::ReadOnly);
+      QDir dir(QDir::currentPath()+"/testdata");
+      if (!dir.exists()){
+        dir.mkdir( QDir::currentPath()+"/testdata");
+      }
+      QFile testfile(QDir::currentPath()+"/testdata/iris.data");
+      testfile.open(QIODevice::WriteOnly);
+      testfile.write(file.readAll());
+      testfile.close();
+      csv_reader_t f(file_descriptor);
+      auto filename{ (QDir::currentPath()+"/testdata/iris.data").toStdString() };
+      csv_file_t r = f.read_csv_file(filename);
+      QVERIFY((r->list.front()[0]->get_double() > 5.0) &&
+              (r->list.front()[0]->get_double() < 5.2) &&
+              (r->list.front()[4]->string() == "Iris-setosa"));
     }
-
 }
 

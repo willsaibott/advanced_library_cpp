@@ -21,31 +21,30 @@ enum class CSV_FIELD_TYPE {
 };
 
 class generic_field_t {
-
 public:
 
   inline static std::shared_ptr<generic_field_t>
-  make_field(std::string s, CSV_FIELD_TYPE t= CSV_FIELD_TYPE::STR) {
+  make_field(const std::string& s, CSV_FIELD_TYPE t = CSV_FIELD_TYPE::STR) {
     return std::make_shared<generic_field_t>(s,t);
   }
 
-  generic_field_t(std::string s = "") : m_sdata(s)  {
-    m_type = CSV_FIELD_TYPE::STR;
-    m_idata = static_cast<int>(std::nan(""));
-    m_fdata = std::nan("");
+  generic_field_t(const std::string& s = "") : m_sdata(s)  {
+    m_type    = CSV_FIELD_TYPE::STR;
+    m_lldata  = static_cast<long long>(std::nan(""));
+    m_fdata   = std::nan("");
   }
 
-  generic_field_t(std::string s, CSV_FIELD_TYPE t) {
+  generic_field_t(const std::string& s, CSV_FIELD_TYPE t) {
     m_sdata = s;
     m_type = t;
     switch (t) {
     case CSV_FIELD_TYPE::INT:
-      m_idata = std::stoi(m_sdata);
-      m_fdata = std::nan("");
+      m_lldata  = std::stoll(m_sdata);
+      m_fdata   = std::nan("");
       break;
     case CSV_FIELD_TYPE::DOUBLE:
-      m_fdata = std::stod(m_sdata);
-      m_idata = static_cast<int>(std::nan(""));
+      m_fdata   = std::stod(m_sdata);
+      m_lldata  = static_cast<long long>(std::nan(""));
       break;
     default:
       break;
@@ -59,26 +58,40 @@ public:
 
   int
   get_int() {
-    if (std::isnan(m_idata))
+    if (std::isnan(m_lldata)) {
       return std::stoi(m_sdata);
-    else
-      return m_idata;
+    }
+    else {
+      return static_cast<int>(m_lldata);
+    }
+  }
+
+  long long
+  get_long() {
+    if (std::isnan(m_lldata)) {
+      return std::stoll(m_sdata);
+    }
+    else {
+      return m_lldata;
+    }
   }
 
   double
   get_double() {
-    if (std::isnan(m_fdata))
+    if (std::isnan(m_fdata)) {
       return std::stod(m_sdata);
-    else
+    }
+    else {
       return m_fdata;
+    }
   }
 
 private:
 
-  CSV_FIELD_TYPE m_type;
-  int m_idata;
-  double m_fdata;
-  std::string m_sdata;
+  CSV_FIELD_TYPE  m_type;
+  long long       m_lldata;
+  double          m_fdata;
+  std::string     m_sdata;
 };
 
 typedef std::shared_ptr<generic_field_t> csv_field_t;
@@ -88,7 +101,7 @@ public:
   std::list<std::vector<csv_field_t>> list;
   std::vector<CSV_FIELD_TYPE> file_descriptor;
 
-  csv_file_s(std::vector<CSV_FIELD_TYPE> fdescriptor)
+  csv_file_s(const std::vector<CSV_FIELD_TYPE>& fdescriptor)
     : file_descriptor(fdescriptor) { }
 };
 
@@ -98,7 +111,7 @@ class csv_reader_t {
 
 public:
 
-  csv_reader_t(std::vector<CSV_FIELD_TYPE> file_descriptor,
+  csv_reader_t(const std::vector<CSV_FIELD_TYPE>& file_descriptor,
                int start_offset=0,
                char separator = ',') {
     m_file_descriptor = file_descriptor;
@@ -107,7 +120,7 @@ public:
   }
 
   csv_file_t
-  read_csv_file(const std::string filepath) {
+  read_csv_file(const std::string& filepath) {
     csv_file_t csvfile  = make_csv(m_file_descriptor);
     std::ifstream filestream(filepath.c_str());
     if (filestream.good()) {
@@ -126,7 +139,8 @@ public:
             vline.push_back(f);
           }
           else {
-            std::cout << "File doesn't correspond to given file descriptor!" << std::endl;
+            std::cout << "File doesn't correspond to given file descriptor!"
+                      << std::endl;
             return csvfile;
           }
         }
@@ -144,7 +158,7 @@ private:
   std::vector<CSV_FIELD_TYPE> m_file_descriptor;
 
   csv_file_t
-  make_csv(std::vector<CSV_FIELD_TYPE> file_descriptor) {
+  make_csv(const std::vector<CSV_FIELD_TYPE>& file_descriptor) {
     csv_file_t x = std::make_shared<csv_file_s>(file_descriptor);
     return x;
   }
